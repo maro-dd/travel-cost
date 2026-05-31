@@ -1,0 +1,681 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>交通費計算</title>
+<style>
+:root {
+  color-scheme: light;
+  --ink: #1f2933; --muted: #66788a; --line: #d7dee6;
+  --panel: #ffffff; --page: #eef3f6;
+  --primary: #233142; --accent: #2f7d6d; --warn: #a23e48;
+}
+* { box-sizing: border-box; }
+body { margin: 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: var(--page); color: var(--ink); }
+
+/* ── LOGIN ── */
+#loginScreen {
+  display: none; position: fixed; inset: 0; background: var(--page);
+  place-items: center; z-index: 999;
+}
+#loginScreen.active { display: grid; }
+#loginForm {
+  width: min(420px, calc(100vw - 32px));
+  display: grid; gap: 14px; padding: 28px;
+  background: white; border: 1px solid var(--line); border-radius: 8px;
+}
+#loginForm h1 { margin: 0; font-size: 24px; }
+#loginErr { margin: 0; color: var(--warn); font-size: 14px; display: none; }
+#loginErr.show { display: block; }
+
+#app { display: none; }
+#app.active { display: block; }
+
+.app-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 22px clamp(16px,4vw,40px); background: var(--primary); color: white;
+}
+h1, h2, p { margin: 0; }
+h1 { font-size: 28px; } h2 { font-size: 18px; margin-bottom: 14px; }
+.eyebrow { color: #b8c7d6; font-size: 12px; text-transform: uppercase; }
+.shell {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px; padding: 14px; max-width: 1120px; margin: 0 auto;
+}
+.panel, .trip-card { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 16px; }
+.wide { grid-column: 1 / -1; }
+.row-form, .grid-form, .actions, .section-head, .trip-card-head, .summary { display: flex; gap: 10px; align-items: center; }
+.section-head, .trip-card-head, .summary { justify-content: space-between; }
+.section-head { margin-bottom: 12px; }
+.grid-form { display: grid; grid-template-columns: 1.2fr 1fr 1fr auto; }
+input, select, button { min-height: 42px; border-radius: 6px; border: 1px solid var(--line); padding: 0 12px; font: inherit; }
+input, select { width: 100%; background: white; }
+button { cursor: pointer; border: 0; background: var(--accent); color: white; font-weight: 700; white-space: nowrap; }
+.secondary { background: #e7edf2; color: var(--primary); }
+
+/* ── ×ボタン修正: inline-flex でセンタリング ── */
+.icon-button, .delete-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px; height: 36px; min-height: 36px;
+  padding: 0; flex-shrink: 0;
+  background: #f0d9dc; color: var(--warn);
+  font-size: 18px; line-height: 1;
+  border: none; border-radius: 6px;
+  cursor: pointer;
+}
+.chip .delete-button {
+  width: 22px; height: 22px; min-height: 22px;
+  border-radius: 50%; font-size: 14px;
+}
+
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.participants { display: grid; gap: 10px; margin-top: 12px; }
+.chip, .check {
+  display: inline-flex; align-items: center; gap: 7px;
+  min-height: 34px; padding: 6px 10px;
+  background: #eef7f4; border: 1px solid #cfe2dc; border-radius: 999px;
+}
+
+/* ── collapsible（メンバー・車・割り勘メンバー） ── */
+.collapsible { display: grid; gap: 12px; }
+.collapsible summary {
+  display: flex; align-items: center; justify-content: space-between;
+  min-height: 42px; padding: 0 12px;
+  border: 1px solid var(--line); border-radius: 6px;
+  background: #f6f8fa; color: var(--primary);
+  cursor: pointer; font-weight: 700; list-style: none;
+}
+.collapsible summary::-webkit-details-marker { display: none; }
+.collapsible summary::after { content: "開く"; color: var(--muted); font-size: 12px; }
+.collapsible[open] summary::after { content: "閉じる"; }
+.collapsible[open] summary { margin-bottom: 12px; }
+
+/* ── 車カードsummary内の×ボタン ── */
+.car-summary { gap: 10px; }
+.car-summary::after { margin-left: auto; }
+.car-summary-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
+.car-summary .icon-button { flex-shrink: 0; order: 3; }
+
+.participant-tools { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.participant-tools button { min-height: 38px; background: #e7edf2; color: var(--primary); }
+.participant-list {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 8px; touch-action: pan-y; user-select: none;
+}
+.participant-list .check {
+  display: flex; align-items: center; justify-content: flex-start;
+  min-width: 0; min-height: 48px; padding: 10px 12px; border-radius: 8px; line-height: 1.35;
+}
+.participant-list .check input { flex: 0 0 auto; width: 22px; height: 22px; min-height: 22px; padding: 0; }
+.participant-list .check span { min-width: 0; overflow-wrap: anywhere; }
+.title-input { margin-bottom: 12px; }
+.trip-cars { display: grid; gap: 12px; }
+.trip-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-top: 12px; }
+label { display: grid; gap: 6px; color: var(--muted); font-size: 13px; }
+.switch input { display: none; }
+.switch span { display: block; width: 58px; height: 34px; border-radius: 999px; background: #cfd9e2; position: relative; }
+.switch span::after { content: ""; width: 26px; height: 26px; border-radius: 50%; background: white; position: absolute; left: 4px; top: 4px; transition: 0.2s; }
+.switch input:checked + span { background: var(--accent); }
+.switch input:checked + span::after { transform: translateX(24px); }
+table { width: 100%; border-collapse: collapse; margin-top: 12px; overflow: hidden; border-radius: 8px; }
+th, td { padding: 10px; border-bottom: 1px solid var(--line); text-align: right; }
+th:first-child, td:first-child { text-align: left; }
+th { background: var(--primary); color: white; }
+.credit { color: var(--accent); font-weight: 800; }
+.debit { color: var(--warn); font-weight: 800; }
+.car-breakdown, .history { display: grid; gap: 8px; margin-top: 12px; }
+.history-row { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; }
+.history-item { display: flex; justify-content: space-between; gap: 12px; width: 100%; background: white; color: var(--ink); border: 1px solid var(--line); }
+.muted { color: var(--muted); }
+.logout-btn { background: transparent; border: 1px solid rgba(255,255,255,0.4); color: white; font-weight: 400; font-size: 13px; min-height: 34px; padding: 0 12px; }
+
+@media print {
+  #loginScreen, .logout-btn, .actions, .section-head button,
+  #personForm, #carForm, .delete-button, .icon-button,
+  .participant-tools, #historyList,
+  section:has(#historyList), section:has(#personForm) { display: none !important; }
+  body { background: white; }
+  .shell { display: block; padding: 0; }
+  .panel, .trip-card { border: none; padding: 8px 0; break-inside: avoid; }
+}
+@media (max-width: 760px) {
+  .app-header, .section-head, .actions, .summary, .history-item { align-items: stretch; flex-direction: column; }
+  .shell, .grid-form, .trip-grid { grid-template-columns: 1fr; }
+  .participant-list { grid-template-columns: 1fr; }
+  .row-form { display: grid; grid-template-columns: 1fr auto; }
+  table { font-size: 13px; }
+  th, td { padding: 8px 6px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ログイン画面 -->
+<div id="loginScreen">
+  <form id="loginForm" onsubmit="doLogin(event)">
+    <h1>交通費計算</h1>
+    <input id="pwInput" type="password" placeholder="パスワード（なければ空欄）" autofocus>
+    <p id="loginErr">パスワードが違います。</p>
+    <button type="submit">ログイン</button>
+    <p style="font-size:13px;color:var(--muted);margin:0;">初回アクセス時に入力した値がパスワードになります。空欄のままにするとパスワードなしで使えます。</p>
+  </form>
+</div>
+
+<!-- アプリ本体 -->
+<div id="app">
+<header class="app-header">
+  <div>
+    <p class="eyebrow">Transportation expense calculation</p>
+    <h1>交通費計算</h1>
+  </div>
+  <button class="logout-btn" onclick="doLogout()">ログアウト</button>
+</header>
+
+<main class="shell">
+  <!-- メンバー -->
+  <section class="panel">
+    <h2>メンバー</h2>
+    <details class="collapsible" open>
+      <summary>メンバー登録</summary>
+      <form id="personForm" class="row-form">
+        <input name="name" placeholder="名前を追加" required>
+        <button>追加</button>
+      </form>
+      <div id="peopleList" class="chips"></div>
+    </details>
+  </section>
+
+  <!-- 車 -->
+  <section class="panel">
+    <h2>車</h2>
+    <details class="collapsible" open>
+      <summary>車登録</summary>
+      <form id="carForm" class="grid-form">
+        <input name="name" placeholder="車名" required>
+        <input name="fuel_efficiency" type="number" step="0.1" min="0.1" value="15" placeholder="燃費 km/L">
+        <input name="gas_price" type="number" step="1" min="0" value="170" placeholder="ガソリン 円/L">
+        <button>追加</button>
+      </form>
+      <div id="carsList" class="chips"></div>
+    </details>
+  </section>
+
+  <!-- 計算 -->
+  <section class="panel wide">
+    <div class="section-head">
+      <h2>計算</h2>
+      <button id="addTripCarButton" class="secondary">車を追加</button>
+    </div>
+    <input id="tripTitle" class="title-input" placeholder="名称 例: 20○○-○○ 冬合宿">
+    <input id="pdfFileName" class="title-input" placeholder="PDFファイル名 例: 20○○-○○ 冬合宿交通費精算">
+    <div id="tripCars" class="trip-cars"></div>
+    <div class="actions">
+      <button id="calculateButton">計算</button>
+      <button id="saveButton" class="secondary">履歴保存</button>
+      <button id="pdfButton" class="secondary">PDF出力</button>
+    </div>
+  </section>
+
+  <!-- 精算結果 -->
+  <section class="panel wide">
+    <h2>精算結果</h2>
+    <div id="summary" class="summary"></div>
+    <div id="resultTable"></div>
+  </section>
+
+  <!-- 履歴 -->
+  <section class="panel wide">
+    <h2>履歴</h2>
+    <div id="historyList" class="history"></div>
+  </section>
+</main>
+</div>
+
+<!-- 車カードのテンプレート -->
+<template id="tripCarTemplate">
+  <article class="trip-card">
+    <details class="collapsible car-collapsible" open>
+      <summary class="car-summary">
+        <span class="car-summary-name">車の設定</span>
+        <button class="removeCar icon-button" title="この車を計算から外す" type="button">×</button>
+      </summary>
+      <div class="trip-card-head">
+        <select class="carSelect"></select>
+      </div>
+      <div class="trip-grid">
+        <label>運転手<select class="driverSelect"></select></label>
+        <label>駐車場支払者<select class="parkingPayerSelect"></select></label>
+        <label>距離 km<input class="distanceInput" type="number" step="0.1" min="0" value="0"></label>
+        <label>往復<label class="switch"><input class="roundTripInput" type="checkbox"><span></span></label></label>
+        <label>燃費 km/L<input class="fuelEfficiencyInput" type="number" step="0.1" min="0.1"></label>
+        <label>ガソリン 円/L<input class="gasPriceInput" type="number" step="1" min="0"></label>
+        <label>高速代 円<input class="tollInput" type="number" step="1" min="0" value="0"></label>
+        <label>駐車場代 円<input class="parkingInput" type="number" step="1" min="0" value="0"></label>
+      </div>
+      <div class="participants"></div>
+    </details>
+  </article>
+</template>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<script>
+// ── ローカルストレージ（Flaskなしで動くスタンドアロン版） ──
+// window.storage がある環境（Artifactプレビュー）と
+// ない環境（ダウンロードしてブラウザで開く）の両方に対応
+const ST = (() => {
+  const useWindowStorage = typeof window !== 'undefined' && window.storage && typeof window.storage.get === 'function';
+  return {
+    async get(k) {
+      if (useWindowStorage) {
+        try { const r = await window.storage.get(k); return r ? JSON.parse(r.value) : null; } catch { return null; }
+      } else {
+        try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : null; } catch { return null; }
+      }
+    },
+    async set(k, v) {
+      if (useWindowStorage) {
+        try { await window.storage.set(k, JSON.stringify(v)); } catch(e) { console.error(e); }
+      } else {
+        try { localStorage.setItem(k, JSON.stringify(v)); } catch(e) { console.error(e); }
+      }
+    }
+  };
+})();
+
+async function persist() {
+  await ST.set('tc_people', state.people);
+  await ST.set('tc_cars', state.cars);
+  await ST.set('tc_trips', state.trips);
+}
+
+// ── 認証 ──
+async function doLogin(e) {
+  e.preventDefault();
+  const pw = document.getElementById('pwInput').value;
+  const stored = await ST.get('tc_password');
+  if (stored === null) {
+    await ST.set('tc_password', pw);
+    showApp();
+  } else if (pw === stored) {
+    showApp();
+  } else {
+    document.getElementById('loginErr').classList.add('show');
+    document.getElementById('pwInput').value = '';
+  }
+}
+function showApp() {
+  document.getElementById('loginScreen').classList.remove('active');
+  document.getElementById('app').classList.add('active');
+}
+function doLogout() {
+  document.getElementById('app').classList.remove('active');
+  document.getElementById('loginScreen').classList.add('active');
+  document.getElementById('pwInput').value = '';
+  document.getElementById('loginErr').classList.remove('show');
+}
+
+// ── State ──
+const state = { people: [], cars: [], trips: [], result: null };
+const yen = v => `${Math.round(v || 0).toLocaleString()} 円`;
+const esc = v => String(v ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const safeFileName = v => { const n = String(v||"").trim().replace(/[\\/:*?"<>|]/g,"_").replace(/\s+/g," "); return n||"travel-cost"; };
+
+// ── CRUD ──
+async function removePerson(id, name) {
+  if (!confirm(`${name} を削除しますか？ 保存済み履歴の内容は残ります。`)) return;
+  state.people = state.people.filter(p => p.id !== id);
+  await persist(); renderPeople();
+}
+async function removeCar(id, name) {
+  if (!confirm(`${name} を削除しますか？ 保存済み履歴の内容は残ります。`)) return;
+  state.cars = state.cars.filter(c => c.id !== id);
+  await persist(); renderCars();
+}
+async function removeTrip(id) {
+  if (!confirm("この履歴を削除しますか？")) return;
+  state.trips = state.trips.filter(t => t.id !== id);
+  await persist(); renderHistory();
+}
+
+// ── Render ──
+function renderPeople() {
+  peopleList.innerHTML = state.people.map(p => `
+    <span class="chip">${esc(p.name)}<button class="delete-button" type="button" data-person-id="${p.id}" data-name="${esc(p.name)}">×</button></span>
+  `).join("");
+  peopleList.querySelectorAll("[data-person-id]").forEach(b =>
+    b.addEventListener("click", () => removePerson(b.dataset.personId, b.dataset.name))
+  );
+  document.querySelectorAll(".trip-card").forEach(fillTripCardOptions);
+}
+
+function renderCars() {
+  carsList.innerHTML = state.cars.map(c => `
+    <span class="chip">${esc(c.name)} ${c.fuel_efficiency}km/L ${yen(c.gas_price)}/L<button class="delete-button" type="button" data-car-id="${c.id}" data-name="${esc(c.name)}">×</button></span>
+  `).join("");
+  carsList.querySelectorAll("[data-car-id]").forEach(b =>
+    b.addEventListener("click", () => removeCar(b.dataset.carId, b.dataset.name))
+  );
+  document.querySelectorAll(".trip-card").forEach(fillTripCardOptions);
+}
+
+function fillSelect(select, items, labelKey = "name") {
+  const current = select.value;
+  select.innerHTML = items.map(item => `<option value="${item.id}">${esc(item[labelKey])}</option>`).join("");
+  if (items.some(item => String(item.id) === current)) select.value = current;
+}
+
+function fillTripCardOptions(card) {
+  fillSelect(card.querySelector(".carSelect"), state.cars);
+  fillSelect(card.querySelector(".driverSelect"), state.people);
+  fillSelect(card.querySelector(".parkingPayerSelect"), state.people);
+  const participants = card.querySelector(".participants");
+  const checkedIds = new Set([...participants.querySelectorAll(".participantInput:checked")].map(i => i.value));
+  const shouldRestore = participants.querySelectorAll(".participantInput").length > 0;
+  participants.innerHTML = `
+    <details class="collapsible participant-collapsible" open>
+      <summary>割り勘メンバー</summary>
+      <div class="participant-tools">
+        <button type="button" class="selectAllParticipants">全員選択</button>
+        <button type="button" class="clearAllParticipants">全員解除</button>
+      </div>
+      <div class="participant-list">
+        ${state.people.map(p => {
+          const checked = !shouldRestore || checkedIds.has(String(p.id)) ? "checked" : "";
+          return `<label class="check"><input type="checkbox" class="participantInput" value="${p.id}" ${checked}><span>${esc(p.name)}</span></label>`;
+        }).join("")}
+      </div>
+    </details>`;
+  participants.querySelector(".selectAllParticipants").addEventListener("click", () => setAllParticipants(card, true));
+  participants.querySelector(".clearAllParticipants").addEventListener("click", () => setAllParticipants(card, false));
+  bindParticipantDrag(card);
+  syncCarDefaults(card);
+}
+
+function setAllParticipants(card, checked) {
+  card.querySelectorAll(".participantInput").forEach(i => { i.checked = checked; });
+}
+
+// ── ドラッグ選択（元のコードそのまま） ──
+function bindParticipantDrag(card) {
+  const list = card.querySelector(".participant-list");
+  let pointerActive = false, dragStarted = false, dragChecked = true;
+  let startX = 0, startY = 0, startInput = null, suppressClick = false, activePointerId = null;
+  const dragThreshold = 10;
+  function setFromPoint(event) {
+    const el = document.elementFromPoint(event.clientX, event.clientY);
+    const check = el?.closest?.(".check");
+    if (!check || !list.contains(check)) return;
+    check.querySelector(".participantInput").checked = dragChecked;
+  }
+  list.addEventListener("pointerdown", event => {
+    const check = event.target.closest(".check");
+    if (!check) return;
+    pointerActive = true; dragStarted = false;
+    startX = event.clientX; startY = event.clientY;
+    startInput = check.querySelector(".participantInput");
+    dragChecked = !startInput.checked; activePointerId = event.pointerId;
+  });
+  list.addEventListener("pointermove", event => {
+    if (!pointerActive || event.pointerId !== activePointerId) return;
+    const moved = Math.hypot(event.clientX - startX, event.clientY - startY);
+    if (!dragStarted && moved < dragThreshold) return;
+    if (!dragStarted) { dragStarted = true; startInput.checked = dragChecked; list.setPointerCapture?.(event.pointerId); }
+    event.preventDefault(); setFromPoint(event);
+  });
+  list.addEventListener("pointerup", event => {
+    if (dragStarted) { event.preventDefault(); suppressClick = true; }
+    pointerActive = false; dragStarted = false; startInput = null; activePointerId = null;
+    if (suppressClick) setTimeout(() => { suppressClick = false; }, 80);
+  });
+  list.addEventListener("pointercancel", () => { pointerActive = false; dragStarted = false; startInput = null; activePointerId = null; });
+  list.addEventListener("click", event => {
+    if (!suppressClick) return;
+    event.preventDefault(); event.stopPropagation(); suppressClick = false;
+  }, true);
+}
+
+function syncCarDefaults(card) {
+  const carId = Number(card.querySelector(".carSelect").value);
+  const car = state.cars.find(c => c.id === carId);
+  if (!car) return;
+  card.querySelector(".car-summary-name").textContent = `${car.name} カーの設定`;
+  const fuel = card.querySelector(".fuelEfficiencyInput");
+  const gas = card.querySelector(".gasPriceInput");
+  if (!fuel.value) fuel.value = car.fuel_efficiency;
+  if (!gas.value) gas.value = car.gas_price;
+}
+
+function addTripCar() {
+  const fragment = tripCarTemplate.content.cloneNode(true);
+  const card = fragment.querySelector(".trip-card");
+  fillTripCardOptions(card);
+  card.querySelector(".carSelect").addEventListener("change", () => {
+    card.querySelector(".fuelEfficiencyInput").value = "";
+    card.querySelector(".gasPriceInput").value = "";
+    syncCarDefaults(card);
+  });
+  card.querySelector(".removeCar").addEventListener("click", event => { event.preventDefault(); card.remove(); });
+  tripCars.appendChild(fragment);
+}
+
+function buildTripPayload() {
+  return {
+    title: tripTitle.value.trim() || "無題",
+    people: state.people,
+    cars: [...document.querySelectorAll(".trip-card")].map(card => {
+      const car = state.cars.find(c => String(c.id) === card.querySelector(".carSelect").value);
+      return {
+        car_id: car?.id, car_name: car?.name || "車",
+        driver_id: card.querySelector(".driverSelect").value,
+        parking_payer_id: card.querySelector(".parkingPayerSelect").value,
+        participant_ids: [...card.querySelectorAll(".participantInput:checked")].map(i => i.value),
+        distance: Number(card.querySelector(".distanceInput").value),
+        round_trip: card.querySelector(".roundTripInput").checked,
+        fuel_efficiency: Number(card.querySelector(".fuelEfficiencyInput").value),
+        gas_price: Number(card.querySelector(".gasPriceInput").value),
+        toll: Number(card.querySelector(".tollInput").value),
+        parking: Number(card.querySelector(".parkingInput").value),
+      };
+    }),
+  };
+}
+
+// ── 計算ロジック ──
+function calculate_local(data) {
+  const people = {};
+  data.people.forEach(p => { people[String(p.id)] = p; });
+  const balances = {};
+  Object.entries(people).forEach(([id, p]) => { balances[id] = { name: p.name, paid: 0, share: 0, settlement: 0 }; });
+  const carResults = [];
+  for (const car of data.cars) {
+    const pids = (car.participant_ids || []).map(String).filter(id => people[id]);
+    const driver_id = String(car.driver_id || "");
+    let dist = parseFloat(car.distance) || 0;
+    if (car.round_trip) dist *= 2;
+    const fe = Math.max(parseFloat(car.fuel_efficiency) || 0, 0.01);
+    const gp = parseFloat(car.gas_price) || 0;
+    const toll = parseFloat(car.toll) || 0;
+    const parking = parseFloat(car.parking) || 0;
+    const ppid = String(car.parking_payer_id || driver_id);
+    const gas_cost = dist / fe * gp;
+    const total = gas_cost + toll + parking;
+    const share = pids.length ? total / pids.length : 0;
+    if (balances[driver_id]) balances[driver_id].paid += gas_cost + toll;
+    if (balances[ppid]) balances[ppid].paid += parking;
+    pids.forEach(id => { balances[id].share += share; });
+    carResults.push({
+      car_name: car.car_name || "車", driver_id,
+      distance: Math.round(dist * 10) / 10,
+      gas_cost: Math.round(gas_cost), toll: Math.round(toll),
+      parking: Math.round(parking), total: Math.round(total), share: Math.round(share),
+      participants: pids.map(id => people[id].name),
+    });
+  }
+  Object.values(balances).forEach(b => {
+    b.paid = Math.round(b.paid); b.share = Math.round(b.share);
+    b.settlement = Math.round(b.share - b.paid);
+  });
+  return { cars: carResults, people: Object.values(balances), total: Math.round(carResults.reduce((s, c) => s + c.total, 0)) };
+}
+
+function renderResult(result) {
+  state.result = result;
+  summary.innerHTML = `<strong>合計 ${yen(result.total)}</strong><span>マイナスは受け取る金額です</span>`;
+  resultTable.innerHTML = `
+    <table>
+      <thead><tr><th>名前</th><th>支払済</th><th>負担額</th><th>精算額</th></tr></thead>
+      <tbody>${result.people.map(p => `<tr><td>${esc(p.name)}</td><td>${yen(p.paid)}</td><td>${yen(p.share)}</td><td class="${p.settlement < 0 ? "credit" : "debit"}">${yen(p.settlement)}</td></tr>`).join("")}</tbody>
+    </table>
+    <div class="car-breakdown">
+      ${result.cars.map(c => `<div><strong>${esc(c.car_name)}</strong> ${c.distance}km / ガソリン ${yen(c.gas_cost)} / 高速 ${yen(c.toll)} / 駐車場 ${yen(c.parking)} / 一人 ${yen(c.share)}</div>`).join("")}
+    </div>`;
+}
+
+function renderHistory() {
+  historyList.innerHTML = state.trips.length
+    ? state.trips.map(trip => `
+        <div class="history-row">
+          <button class="history-item" data-id="${trip.id}"><strong>${esc(trip.title)}</strong><span>${esc(trip.created_at)}</span></button>
+          <button class="delete-button" type="button" data-trip-delete="${trip.id}">×</button>
+        </div>`).join("")
+    : "<p class='muted'>保存した精算結果はまだありません。</p>";
+  historyList.querySelectorAll(".history-item").forEach(b => b.addEventListener("click", loadTrip));
+  historyList.querySelectorAll("[data-trip-delete]").forEach(b => b.addEventListener("click", () => removeTrip(b.dataset.tripDelete)));
+}
+
+async function loadTrip(event) {
+  const trip = state.trips.find(t => String(t.id) === event.currentTarget.dataset.id);
+  if (!trip) return;
+  tripTitle.value = trip.data.title;
+  tripCars.innerHTML = "";
+  trip.data.cars.forEach(saved => {
+    addTripCar();
+    const card = tripCars.lastElementChild;
+    card.querySelector(".carSelect").value = saved.car_id;
+    card.querySelector(".driverSelect").value = saved.driver_id;
+    card.querySelector(".parkingPayerSelect").value = saved.parking_payer_id;
+    card.querySelector(".distanceInput").value = saved.distance;
+    card.querySelector(".roundTripInput").checked = saved.round_trip;
+    card.querySelector(".fuelEfficiencyInput").value = saved.fuel_efficiency;
+    card.querySelector(".gasPriceInput").value = saved.gas_price;
+    card.querySelector(".tollInput").value = saved.toll;
+    card.querySelector(".parkingInput").value = saved.parking;
+    card.querySelectorAll(".participantInput").forEach(input => {
+      input.checked = saved.participant_ids.map(String).includes(input.value);
+    });
+  });
+  renderResult(trip.result);
+}
+
+// ── PDF出力 ──
+function exportPDF() {
+  if (!state.result) { alert("先に計算してください"); return; }
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  const title = tripTitle.value.trim() || "交通費精算結果";
+  const fileName = safeFileName(pdfFileName.value || title);
+
+  doc.setFontSize(16);
+  doc.setFont("helvetica", "bold");
+  doc.text(title, 14, 20);
+  doc.setFontSize(10);
+  doc.setFont("helvetica", "normal");
+  doc.text(new Date().toLocaleString("ja-JP"), 14, 28);
+
+  doc.setFontSize(12);
+  doc.setFont("helvetica", "bold");
+  doc.text("Car Breakdown", 14, 40);
+  doc.autoTable({
+    startY: 44,
+    head: [["Car", "Dist.(km)", "Gas (yen)", "Toll (yen)", "Parking (yen)", "Total (yen)", "Per person (yen)"]],
+    body: state.result.cars.map(c => [
+      c.car_name, c.distance,
+      c.gas_cost.toLocaleString(), c.toll.toLocaleString(),
+      c.parking.toLocaleString(), c.total.toLocaleString(),
+      c.share.toLocaleString()
+    ]),
+    headStyles: { fillColor: [35, 49, 66] },
+    alternateRowStyles: { fillColor: [246, 248, 250] },
+    styles: { fontSize: 9 },
+  });
+
+  const y2 = doc.lastAutoTable.finalY + 10;
+  doc.setFont("helvetica", "bold");
+  doc.text("Settlement", 14, y2);
+  doc.autoTable({
+    startY: y2 + 4,
+    head: [["Name", "Paid (yen)", "Share (yen)", "Settlement (yen)"]],
+    body: state.result.people.map(p => [
+      p.name,
+      p.paid.toLocaleString(),
+      p.share.toLocaleString(),
+      p.settlement.toLocaleString()
+    ]),
+    headStyles: { fillColor: [35, 49, 66] },
+    alternateRowStyles: { fillColor: [246, 248, 250] },
+    styles: { fontSize: 9 },
+  });
+
+  doc.save(`${fileName}.pdf`);
+}
+
+// ── イベント ──
+personForm.addEventListener("submit", async event => {
+  event.preventDefault();
+  const name = new FormData(personForm).get("name").trim();
+  if (!name) return;
+  if (state.people.find(p => p.name === name)) { alert("同じ名前が登録済みです"); return; }
+  const id = state.people.length ? Math.max(...state.people.map(p => p.id)) + 1 : 1;
+  state.people.push({ id, name }); personForm.reset();
+  await persist(); renderPeople();
+});
+
+carForm.addEventListener("submit", async event => {
+  event.preventDefault();
+  const body = Object.fromEntries(new FormData(carForm));
+  const name = body.name.trim();
+  if (!name) return;
+  if (state.cars.find(c => c.name === name)) { alert("同じ車名が登録済みです"); return; }
+  const id = state.cars.length ? Math.max(...state.cars.map(c => c.id)) + 1 : 1;
+  state.cars.push({ id, name, fuel_efficiency: parseFloat(body.fuel_efficiency) || 15, gas_price: parseFloat(body.gas_price) || 170 });
+  carForm.reset(); carForm.fuel_efficiency.value = 15; carForm.gas_price.value = 170;
+  await persist(); renderCars();
+});
+
+addTripCarButton.addEventListener("click", addTripCar);
+calculateButton.addEventListener("click", () => renderResult(calculate_local(buildTripPayload())));
+saveButton.addEventListener("click", async () => {
+  const payload = buildTripPayload();
+  const result = calculate_local(payload);
+  const id = state.trips.length ? Math.max(...state.trips.map(t => t.id)) + 1 : 1;
+  state.trips.unshift({ id, title: payload.title, created_at: new Date().toLocaleString("ja-JP"), data: payload, result });
+  renderResult(result); await persist(); renderHistory();
+});
+pdfButton.addEventListener("click", exportPDF);
+
+// ── 起動 ──
+async function boot() {
+  const [savedPeople, savedCars, savedTrips] = await Promise.all([
+    ST.get('tc_people'), ST.get('tc_cars'), ST.get('tc_trips')
+  ]);
+  state.people = (savedPeople && savedPeople.length) ? savedPeople : [{ id:1, name:"運転手" }, { id:2, name:"参加者A" }, { id:3, name:"参加者B" }];
+  state.cars   = (savedCars && savedCars.length)   ? savedCars   : [{ id:1, name:"車1", fuel_efficiency:15, gas_price:170 }];
+  state.trips  = (savedTrips && savedTrips.length)  ? savedTrips  : [];
+  renderPeople(); renderCars(); renderHistory(); addTripCar();
+
+  const pw = await ST.get('tc_password');
+  if (pw === null || pw !== "") {
+    document.getElementById('loginScreen').classList.add('active');
+  } else {
+    showApp();
+  }
+}
+
+boot();
+</script>
+</body>
+</html>
