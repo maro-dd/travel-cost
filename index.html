@@ -133,13 +133,20 @@ th { background: var(--primary); color: white; }
 .logout-btn { background: transparent; border: 1px solid rgba(255,255,255,0.4); color: white; font-weight: 400; font-size: 13px; min-height: 34px; padding: 0 12px; }
 
 @media print {
-  #loginScreen, .logout-btn, .actions, .section-head button,
-  #personForm, #carForm, .delete-button, .icon-button,
-  .participant-tools, #historyList,
-  section:has(#historyList), section:has(#personForm) { display: none !important; }
-  body { background: white; }
-  .shell { display: block; padding: 0; }
-  .panel, .trip-card { border: none; padding: 8px 0; break-inside: avoid; }
+  /* 印刷時は精算結果パネルだけ表示 */
+  #loginScreen, .app-header, .actions,
+  .panel:not(#printTarget), #historyList,
+  .section-head button, .delete-button, .icon-button,
+  .participant-tools, .collapsible summary::after { display: none !important; }
+  body { background: white; margin: 0; }
+  .shell { display: block; padding: 0; margin: 0; }
+  #printTarget { border: none; padding: 0; box-shadow: none; }
+  #printTitle { display: block !important; font-size: 18px; font-weight: bold; margin-bottom: 6px; }
+  #printDate  { display: block !important; font-size: 11px; color: #666; margin-bottom: 16px; }
+  table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+  th { background: #233142 !important; color: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  th, td { padding: 7px 10px; border: 1px solid #d7dee6; font-size: 12px; }
+  .car-breakdown div { font-size: 11px; margin-top: 4px; }
 }
 @media (max-width: 760px) {
   .app-header, .section-head, .actions, .summary, .history-item { align-items: stretch; flex-direction: column; }
@@ -220,8 +227,10 @@ th { background: var(--primary); color: white; }
   </section>
 
   <!-- 精算結果 -->
-  <section class="panel wide">
+  <section class="panel wide" id="printTarget">
     <h2>精算結果</h2>
+    <span id="printTitle" style="display:none"></span>
+    <span id="printDate"  style="display:none"></span>
     <div id="summary" class="summary"></div>
     <div id="resultTable"></div>
   </section>
@@ -260,10 +269,7 @@ th { background: var(--primary); color: white; }
   </article>
 </template>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 <script>
-// ── ローカルストレージ（Flaskなしで動くスタンドアロン版） ──
 // window.storage がある環境（Artifactプレビュー）と
 // ない環境（ダウンロードしてブラウザで開く）の両方に対応
 const ST = (() => {
@@ -447,6 +453,12 @@ function syncCarDefaults(card) {
   const gas = card.querySelector(".gasPriceInput");
   if (!fuel.value) fuel.value = car.fuel_efficiency;
   if (!gas.value) gas.value = car.gas_price;
+  // 車名と同じ名前のメンバーがいれば運転手・駐車場支払者を自動セット
+  const matched = state.people.find(p => p.name === car.name);
+  if (matched) {
+    card.querySelector(".driverSelect").value = String(matched.id);
+    card.querySelector(".parkingPayerSelect").value = String(matched.id);
+  }
 }
 
 function addTripCar() {
@@ -571,56 +583,56 @@ async function loadTrip(event) {
   renderResult(trip.result);
 }
 
-// ── PDF出力 ──
+// ── PDF出力（BlobURL方式 → Edgeフリーズ回避） ──
 function exportPDF() {
   if (!state.result) { alert("先に計算してください"); return; }
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
   const title = tripTitle.value.trim() || "交通費精算結果";
-  const fileName = safeFileName(pdfFileName.value || title);
+  const dateStr = new Date().toLocaleString("ja-JP");
+  const resultHTML = document.getElementById('resultTable').innerHTML;
+  const totalHTML  = document.getElementById('summary').innerHTML;
 
-  doc.setFontSize(16);
-  doc.setFont("helvetica", "bold");
-  doc.text(title, 14, 20);
-  doc.setFontSize(10);
-  doc.setFont("helvetica", "normal");
-  doc.text(new Date().toLocaleString("ja-JP"), 14, 28);
+  const escaped = title.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  const html = [
+    "<!doctype html><html lang=\"ja\"><head>",
+    "<meta charset=\"utf-8\">",
+    "<title>" + escaped + "</title>",
+    "<style>",
+    "body{font-family:system-ui,-apple-system,\"Segoe UI\",sans-serif;margin:24px;color:#1f2933}",
+    "h1{font-size:18px;margin:0 0 4px}",
+    ".date{font-size:11px;color:#66788a;margin-bottom:16px}",
+    "table{width:100%;border-collapse:collapse;margin-top:12px}",
+    "th{background:#233142;color:#fff;padding:8px 10px;text-align:right;-webkit-print-color-adjust:exact;print-color-adjust:exact}",
+    "th:first-child{text-align:left}",
+    "td{padding:8px 10px;border-bottom:1px solid #d7dee6;text-align:right}",
+    "td:first-child{text-align:left}",
+    ".credit{color:#2f7d6d;font-weight:800}",
+    ".debit{color:#a23e48;font-weight:800}",
+    ".car-breakdown{margin-top:12px;font-size:11px;color:#66788a}",
+    ".car-breakdown div{margin-top:4px}",
+    ".summary{display:flex;justify-content:space-between;margin-top:8px;font-size:14px}",
+    "@media print{th{background:#233142 !important;color:#fff !important;-webkit-print-color-adjust:exact;print-color-adjust:exact}}",
+    "</style></head><body>",
+    "<h1>" + escaped + "</h1>",
+    "<p class=\"date\">" + dateStr + "</p>",
+    "<div class=\"summary\">" + totalHTML + "</div>",
+    resultHTML,
+    "</body></html>"
+  ].join("\n");
 
-  doc.setFontSize(12);
-  doc.setFont("helvetica", "bold");
-  doc.text("Car Breakdown", 14, 40);
-  doc.autoTable({
-    startY: 44,
-    head: [["Car", "Dist.(km)", "Gas (yen)", "Toll (yen)", "Parking (yen)", "Total (yen)", "Per person (yen)"]],
-    body: state.result.cars.map(c => [
-      c.car_name, c.distance,
-      c.gas_cost.toLocaleString(), c.toll.toLocaleString(),
-      c.parking.toLocaleString(), c.total.toLocaleString(),
-      c.share.toLocaleString()
-    ]),
-    headStyles: { fillColor: [35, 49, 66] },
-    alternateRowStyles: { fillColor: [246, 248, 250] },
-    styles: { fontSize: 9 },
+  // BlobURLを作成してタブで開く（document.writeを使わないのでEdgeがフリーズしない）
+  const blob = new Blob([html], { type: "text/html;charset=utf-8" });
+  const url  = URL.createObjectURL(blob);
+  const tab  = window.open(url, "_blank");
+  if (!tab) {
+    URL.revokeObjectURL(url);
+    alert("ポップアップがブロックされました。ブラウザの設定でポップアップを許可してください。");
+    return;
+  }
+  // タブが読み込まれたらBlobURLを解放し、印刷ダイアログを開く
+  tab.addEventListener("load", () => {
+    URL.revokeObjectURL(url);
+    tab.print();
   });
-
-  const y2 = doc.lastAutoTable.finalY + 10;
-  doc.setFont("helvetica", "bold");
-  doc.text("Settlement", 14, y2);
-  doc.autoTable({
-    startY: y2 + 4,
-    head: [["Name", "Paid (yen)", "Share (yen)", "Settlement (yen)"]],
-    body: state.result.people.map(p => [
-      p.name,
-      p.paid.toLocaleString(),
-      p.share.toLocaleString(),
-      p.settlement.toLocaleString()
-    ]),
-    headStyles: { fillColor: [35, 49, 66] },
-    alternateRowStyles: { fillColor: [246, 248, 250] },
-    styles: { fontSize: 9 },
-  });
-
-  doc.save(`${fileName}.pdf`);
 }
 
 // ── イベント ──
