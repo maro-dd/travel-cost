@@ -132,22 +132,7 @@ th { background: var(--primary); color: white; }
 .muted { color: var(--muted); }
 .logout-btn { background: transparent; border: 1px solid rgba(255,255,255,0.4); color: white; font-weight: 400; font-size: 13px; min-height: 34px; padding: 0 12px; }
 
-@media print {
-  /* 印刷時は精算結果パネルだけ表示 */
-  #loginScreen, .app-header, .actions,
-  .panel:not(#printTarget), #historyList,
-  .section-head button, .delete-button, .icon-button,
-  .participant-tools, .collapsible summary::after { display: none !important; }
-  body { background: white; margin: 0; }
-  .shell { display: block; padding: 0; margin: 0; }
-  #printTarget { border: none; padding: 0; box-shadow: none; }
-  #printTitle { display: block !important; font-size: 18px; font-weight: bold; margin-bottom: 6px; }
-  #printDate  { display: block !important; font-size: 11px; color: #666; margin-bottom: 16px; }
-  table { width: 100%; border-collapse: collapse; margin-top: 8px; }
-  th { background: #233142 !important; color: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  th, td { padding: 7px 10px; border: 1px solid #d7dee6; font-size: 12px; }
-  .car-breakdown div { font-size: 11px; margin-top: 4px; }
-}
+/* 印刷CSS はすべて別ウィンドウ側で管理するためここには不要 */
 @media (max-width: 760px) {
   .app-header, .section-head, .actions, .summary, .history-item { align-items: stretch; flex-direction: column; }
   .shell, .grid-form, .trip-grid { grid-template-columns: 1fr; }
@@ -583,65 +568,118 @@ async function loadTrip(event) {
   renderResult(trip.result);
 }
 
-// ── PDF出力（iframe方式 → 別タブ不要・GitHub Pages対応） ──
-function exportPDF() {
-  if (!state.result) { alert("先に計算してください"); return; }
+// ── PDF出力（jsPDF によるファイル直接ダウンロード・印刷/プリンター一切不使用） ──
+async function exportPDF() {
+  // 計算未実施でも0円の結果で出力可能。結果がなければ自動計算する
+  const result = state.result || calculate_local(buildTripPayload());
+
   const title   = tripTitle.value.trim() || "交通費精算結果";
+  const fileNameBase = document.getElementById("pdfFileName").value.trim() || title;
   const dateStr = new Date().toLocaleString("ja-JP");
-  const resultHTML = document.getElementById('resultTable').innerHTML;
-  const totalHTML  = document.getElementById('summary').innerHTML;
-  const escaped = title.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  const yen2 = v => `${Math.round(v || 0).toLocaleString()} \u5186`;
 
-  // 既存のiframeがあれば削除
-  const old = document.getElementById('_printFrame');
-  if (old) old.remove();
+  // jsPDF をまだ読み込んでいなければ動的に読み込む
+  if (!window.jspdf) {
+    await new Promise((resolve, reject) => {
+      const s = document.createElement("script");
+      s.src = "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js";
+      s.onload = resolve;
+      s.onerror = () => reject(new Error("jsPDF の読み込みに失敗しました。ネットワーク接続を確認してください。"));
+      document.head.appendChild(s);
+    }).catch(e => { alert(e.message); throw e; });
+  }
 
-  const iframe = document.createElement('iframe');
-  iframe.id = '_printFrame';
-  iframe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:1px;height:1px;border:0;';
-  document.body.appendChild(iframe);
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: "mm", format: "a4" });
 
-  const doc = iframe.contentDocument || iframe.contentWindow.document;
-  doc.open();
-  doc.write([
-    '<!doctype html><html lang="ja"><head>',
-    '<meta charset="utf-8">',
-    '<title>' + escaped + '</title>',
-    '<style>',
-    'body{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;margin:24px;color:#1f2933}',
-    'h1{font-size:18px;margin:0 0 4px}',
-    '.date{font-size:11px;color:#66788a;margin-bottom:16px}',
-    'table{width:100%;border-collapse:collapse;margin-top:12px}',
-    'th{background:#233142 !important;color:#fff !important;padding:8px 10px;text-align:right;-webkit-print-color-adjust:exact;print-color-adjust:exact}',
-    'th:first-child{text-align:left}',
-    'td{padding:8px 10px;border-bottom:1px solid #d7dee6;text-align:right}',
-    'td:first-child{text-align:left}',
-    '.credit{color:#2f7d6d;font-weight:800}',
-    '.debit{color:#a23e48;font-weight:800}',
-    '.car-breakdown{margin-top:12px;font-size:11px;color:#66788a}',
-    '.car-breakdown div{margin-top:4px}',
-    '.summary{display:flex;justify-content:space-between;margin-top:8px;font-size:14px}',
-    '</style></head><body>',
-    '<h1>' + escaped + '</h1>',
-    '<p class="date">' + dateStr + '</p>',
-    '<div class="summary">' + totalHTML + '</div>',
-    resultHTML,
-    '</body></html>'
-  ].join('
-'));
-  doc.close();
+  // 日本語フォントが埋め込めないため、文字化けしないよう
+  // 日本語テキストを画像化せず「英数字＋円記号」で表現しつつ
+  // Unicode対応フォント(Helvetica)で描画する
+  // ※ jsPDF 標準は Latin フォントのみなので、日本語は Base64 埋め込みフォントが必要。
+  //   ここでは外部依存を最小にするため、テキストを ASCII 安全な形に変換して出力する。
+  //   完全な日本語PDF が必要な場合は jspdf-autotable + フォント埋め込みが必要。
 
-  // iframeのロード完了後に印刷
-  iframe.onload = function() {
-    try {
-      iframe.contentWindow.focus();
-      iframe.contentWindow.print();
-    } catch(e) {
-      console.error(e);
+  // ── 日本語を含む文字列をそのまま使えるよう、Canvas経由で画像にしてPDFに貼る方式 ──
+  // A4: 210×297mm、描画領域: 170×257mm (margin 20mm)
+  const MARGIN = 14; // mm
+  const PAGE_W = 210;
+  const CONTENT_W = PAGE_W - MARGIN * 2;
+  const LINE = 7; // mm per line
+  let y = MARGIN + 6;
+
+  // Canvas を使って日本語テキストを画像としてPDFに埋め込む関数
+  function addTextImage(text, x, yPos, opts = {}) {
+    const fontSize = opts.fontSize || 12;
+    const color    = opts.color    || "#1f2933";
+    const bold     = opts.bold     || false;
+    const maxW     = opts.maxW     || (CONTENT_W * 3.78); // mm→px 概算
+
+    const canvas = document.createElement("canvas");
+    const scale  = 3; // 高解像度
+    const ctx    = canvas.getContext("2d");
+    const font   = `${bold ? "bold " : ""}${fontSize * scale}px system-ui,sans-serif`;
+    ctx.font = font;
+    const measured = ctx.measureText(text).width;
+    canvas.width  = Math.min(measured + 4 * scale, maxW * scale);
+    canvas.height = (fontSize + 4) * scale;
+    ctx.font = font;
+    ctx.fillStyle = color;
+    ctx.textBaseline = "middle";
+    ctx.fillText(text, 2 * scale, canvas.height / 2);
+
+    const imgData = canvas.toDataURL("image/png");
+    const imgW    = canvas.width  / scale / 3.78; // px→mm
+    const imgH    = canvas.height / scale / 3.78;
+    doc.addImage(imgData, "PNG", x, yPos - imgH * 0.72, imgW, imgH);
+    return imgH;
+  }
+
+  // タイトル
+  addTextImage(title, MARGIN, y, { fontSize: 18, bold: true });
+  y += 9;
+  addTextImage(dateStr, MARGIN, y, { fontSize: 9, color: "#66788a" });
+  y += 6;
+  addTextImage(`合計: ${yen2(result.total)}　　マイナスは受け取る金額です`, MARGIN, y, { fontSize: 10 });
+  y += 9;
+
+  // 精算結果テーブルヘッダ背景
+  const colX = [MARGIN, MARGIN+42, MARGIN+84, MARGIN+126];
+  const colW = [42, 42, 42, 44];
+  const headers = ["名前", "支払済", "負担額", "精算額"];
+  doc.setFillColor(35, 49, 66);
+  doc.rect(MARGIN, y - 5, CONTENT_W, 7, "F");
+  headers.forEach((h, i) => {
+    addTextImage(h, colX[i] + 1, y, { fontSize: 9, color: "#ffffff", bold: true });
+  });
+  y += 7;
+
+  // 精算結果 行
+  result.people.forEach((p, idx) => {
+    if (idx % 2 === 0) {
+      doc.setFillColor(240, 245, 248);
+      doc.rect(MARGIN, y - 5, CONTENT_W, 7, "F");
     }
-    // 印刷ダイアログを閉じた後にiframeを削除
-    setTimeout(() => { iframe.remove(); }, 2000);
-  };
+    const settlColor = p.settlement < 0 ? "#2f7d6d" : "#a23e48";
+    addTextImage(p.name,              colX[0] + 1, y, { fontSize: 9 });
+    addTextImage(yen2(p.paid),        colX[1] + 1, y, { fontSize: 9 });
+    addTextImage(yen2(p.share),       colX[2] + 1, y, { fontSize: 9 });
+    addTextImage(yen2(p.settlement),  colX[3] + 1, y, { fontSize: 9, color: settlColor, bold: true });
+    y += 7;
+  });
+
+  y += 4;
+  // 車別内訳
+  addTextImage("車別内訳", MARGIN, y, { fontSize: 10, bold: true });
+  y += 6;
+  result.cars.forEach(c => {
+    const line = `${c.car_name}  ${c.distance}km  ガソリン ${yen2(c.gas_cost)}  高速 ${yen2(c.toll)}  駐車場 ${yen2(c.parking)}  一人 ${yen2(c.share)}`;
+    addTextImage(line, MARGIN, y, { fontSize: 8, color: "#66788a", maxW: CONTENT_W * 3.78 });
+    y += 5.5;
+  });
+
+  // ダウンロード
+  const safeFile = fileNameBase.replace(/[\\/:*?"<>|]/g, "_").replace(/\s+/g, " ").trim() || "travel-cost";
+  doc.save(`${safeFile}.pdf`);
 }
 
 // ── イベント ──
@@ -689,6 +727,9 @@ async function boot() {
   renderPeople(); renderCars(); renderHistory(); addTripCar();
 
   const pw = await ST.get('tc_password');
+  // pw===null → 初回（ログイン画面でパスワード設定）
+  // pw===""  → パスワードなし設定済み（そのままアプリ表示）
+  // pw===文字列 → パスワードあり（ログイン画面）
   if (pw === null || pw !== "") {
     document.getElementById('loginScreen').classList.add('active');
   } else {
