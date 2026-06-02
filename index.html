@@ -4,6 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>交通費計算</title>
+<!-- html2pdf.js のライブラリを読み込み（印刷ダイアログを通さずに直接PDFとして保存するため） -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <style>
 :root {
   color-scheme: light;
@@ -54,7 +56,6 @@ input, select { width: 100%; background: white; }
 button { cursor: pointer; border: 0; background: var(--accent); color: white; font-weight: 700; white-space: nowrap; }
 .secondary { background: #e7edf2; color: var(--primary); }
 
-/* ── ×ボタン修正: inline-flex でセンタリング ── */
 .icon-button, .delete-button {
   display: inline-flex;
   align-items: center;
@@ -79,7 +80,6 @@ button { cursor: pointer; border: 0; background: var(--accent); color: white; fo
   background: #eef7f4; border: 1px solid #cfe2dc; border-radius: 999px;
 }
 
-/* ── collapsible（メンバー・車・割り勘メンバー） ── */
 .collapsible { display: grid; gap: 12px; }
 .collapsible summary {
   display: flex; align-items: center; justify-content: space-between;
@@ -93,7 +93,6 @@ button { cursor: pointer; border: 0; background: var(--accent); color: white; fo
 .collapsible[open] summary::after { content: "閉じる"; }
 .collapsible[open] summary { margin-bottom: 12px; }
 
-/* ── 車カードsummary内の×ボタン ── */
 .car-summary { gap: 10px; }
 .car-summary::after { margin-left: auto; }
 .car-summary-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
@@ -132,7 +131,6 @@ th { background: var(--primary); color: white; }
 .muted { color: var(--muted); }
 .logout-btn { background: transparent; border: 1px solid rgba(255,255,255,0.4); color: white; font-weight: 400; font-size: 13px; min-height: 34px; padding: 0 12px; }
 
-/* 印刷CSS はすべて別ウィンドウ側で管理するためここには不要 */
 @media (max-width: 760px) {
   .app-header, .section-head, .actions, .summary, .history-item { align-items: stretch; flex-direction: column; }
   .shell, .grid-form, .trip-grid { grid-template-columns: 1fr; }
@@ -207,15 +205,13 @@ th { background: var(--primary); color: white; }
     <div class="actions">
       <button id="calculateButton">計算</button>
       <button id="saveButton" class="secondary">履歴保存</button>
-      <button id="pdfButton" class="secondary">PDF出力</button>
+      <button id="pdfButton" class="secondary">PDFファイル保存</button>
     </div>
   </section>
 
   <!-- 精算結果 -->
   <section class="panel wide" id="printTarget">
     <h2>精算結果</h2>
-    <span id="printTitle" style="display:none"></span>
-    <span id="printDate"  style="display:none"></span>
     <div id="summary" class="summary"></div>
     <div id="resultTable"></div>
   </section>
@@ -255,8 +251,6 @@ th { background: var(--primary); color: white; }
 </template>
 
 <script>
-// window.storage がある環境（Artifactプレビュー）と
-// ない環境（ダウンロードしてブラウザで開く）の両方に対応
 const ST = (() => {
   const useWindowStorage = typeof window !== 'undefined' && window.storage && typeof window.storage.get === 'function';
   return {
@@ -318,17 +312,17 @@ const safeFileName = v => { const n = String(v||"").trim().replace(/[\\/:*?"<>|]
 // ── CRUD ──
 async function removePerson(id, name) {
   if (!confirm(`${name} を削除しますか？ 保存済み履歴の内容は残ります。`)) return;
-  state.people = state.people.filter(p => p.id !== id);
+  state.people = state.people.filter(p => p.id !== Number(id));
   await persist(); renderPeople();
 }
 async function removeCar(id, name) {
   if (!confirm(`${name} を削除しますか？ 保存済み履歴の内容は残ります。`)) return;
-  state.cars = state.cars.filter(c => c.id !== id);
+  state.cars = state.cars.filter(c => c.id !== Number(id));
   await persist(); renderCars();
 }
 async function removeTrip(id) {
   if (!confirm("この履歴を削除しますか？")) return;
-  state.trips = state.trips.filter(t => t.id !== id);
+  state.trips = state.trips.filter(t => t.id !== Number(id));
   await persist(); renderHistory();
 }
 
@@ -390,7 +384,6 @@ function setAllParticipants(card, checked) {
   card.querySelectorAll(".participantInput").forEach(i => { i.checked = checked; });
 }
 
-// ── ドラッグ選択（元のコードそのまま） ──
 function bindParticipantDrag(card) {
   const list = card.querySelector(".participant-list");
   let pointerActive = false, dragStarted = false, dragChecked = true;
@@ -438,7 +431,6 @@ function syncCarDefaults(card) {
   const gas = card.querySelector(".gasPriceInput");
   if (!fuel.value) fuel.value = car.fuel_efficiency;
   if (!gas.value) gas.value = car.gas_price;
-  // 車名と同じ名前のメンバーがいれば運転手・駐車場支払者を自動セット
   const matched = state.people.find(p => p.name === car.name);
   if (matched) {
     card.querySelector(".driverSelect").value = String(matched.id);
@@ -446,6 +438,7 @@ function syncCarDefaults(card) {
   }
 }
 
+// 車追加ボタンのアクションを定義
 function addTripCar() {
   const fragment = tripCarTemplate.content.cloneNode(true);
   const card = fragment.querySelector(".trip-card");
@@ -481,7 +474,6 @@ function buildTripPayload() {
   };
 }
 
-// ── 計算ロジック ──
 function calculate_local(data) {
   const people = {};
   data.people.forEach(p => { people[String(p.id)] = p; });
@@ -568,118 +560,80 @@ async function loadTrip(event) {
   renderResult(trip.result);
 }
 
-// ── PDF出力（jsPDF によるファイル直接ダウンロード・印刷/プリンター一切不使用） ──
-async function exportPDF() {
-  // 計算未実施でも0円の結果で出力可能。結果がなければ自動計算する
+// ── 🚀 新しいPDF保存ロジック（印刷ダイアログを一切使わず直接ダウンロード保存する） ──
+function exportPDF() {
+  // ライブラリの読み込みチェック
+  if (typeof html2pdf === "undefined") {
+    alert("PDF作成ライブラリを読み込んでいます。インターネット接続を確認し、数秒後にもう一度お試しください。");
+    return;
+  }
+
+  // 最新データを強制的に再計算
   const result = state.result || calculate_local(buildTripPayload());
+  renderResult(result);
 
-  const title   = tripTitle.value.trim() || "交通費精算結果";
-  const fileNameBase = document.getElementById("pdfFileName").value.trim() || title;
+  // ファイル名・タイトルの決定
+  const fileNameBox = document.getElementById("pdfFileName").value.trim();
+  const tripTitleBox = document.getElementById("tripTitle").value.trim() || "交通費精算結果";
+  const finalTitle = fileNameBox || tripTitleBox;
   const dateStr = new Date().toLocaleString("ja-JP");
-  const yen2 = v => `${Math.round(v || 0).toLocaleString()} \u5186`;
 
-  // jsPDF をまだ読み込んでいなければ動的に読み込む
-  if (!window.jspdf) {
-    await new Promise((resolve, reject) => {
-      const s = document.createElement("script");
-      s.src = "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js";
-      s.onload = resolve;
-      s.onerror = () => reject(new Error("jsPDF の読み込みに失敗しました。ネットワーク接続を確認してください。"));
-      document.head.appendChild(s);
-    }).catch(e => { alert(e.message); throw e; });
-  }
+  // 画面上に映らない、PDF出力専用の一時的なクリーンDOMを生成
+  const pdfTemplate = document.createElement("div");
+  pdfTemplate.style.padding = "15mm 12mm";
+  pdfTemplate.style.background = "#ffffff";
+  pdfTemplate.style.color = "#1f2933";
+  pdfTemplate.style.fontFamily = "system-ui, -apple-system, sans-serif";
 
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({ unit: "mm", format: "a4" });
+  // テーブルやサマリーの中身を複製
+  const summaryContent = document.getElementById("summary").innerHTML;
+  const tableContent = document.getElementById("resultTable").innerHTML;
 
-  // 日本語フォントが埋め込めないため、文字化けしないよう
-  // 日本語テキストを画像化せず「英数字＋円記号」で表現しつつ
-  // Unicode対応フォント(Helvetica)で描画する
-  // ※ jsPDF 標準は Latin フォントのみなので、日本語は Base64 埋め込みフォントが必要。
-  //   ここでは外部依存を最小にするため、テキストを ASCII 安全な形に変換して出力する。
-  //   完全な日本語PDF が必要な場合は jspdf-autotable + フォント埋め込みが必要。
+  // PDFのHTML構造を美しくセットアップ
+  pdfTemplate.innerHTML = `
+    <h1 style="font-size: 22px; font-weight: bold; margin: 0 0 4px 0; color: #233142;">${esc(finalTitle)}</h1>
+    <p style="font-size: 11px; color: #66788a; margin: 0 0 16px 0;">出力日時: ${dateStr}</p>
+    
+    <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #eef3f6; border-radius: 6px; font-size: 14px; margin-bottom: 16px; font-weight: bold;">
+      ${summaryContent}
+    </div>
+    
+    <div class="pdf-table-wrapper">
+      ${tableContent}
+    </div>
+  `;
 
-  // ── 日本語を含む文字列をそのまま使えるよう、Canvas経由で画像にしてPDFに貼る方式 ──
-  // A4: 210×297mm、描画領域: 170×257mm (margin 20mm)
-  const MARGIN = 14; // mm
-  const PAGE_W = 210;
-  const CONTENT_W = PAGE_W - MARGIN * 2;
-  const LINE = 7; // mm per line
-  let y = MARGIN + 6;
+  // スタイルの注入（html2pdfがCSS変数を読み込めないケースに対応するため、インライン上書き用のstyleを用意）
+  const styleTag = document.createElement("style");
+  styleTag.textContent = `
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 13px; }
+    th { background: #233142 !important; color: white !important; padding: 10px 12px; text-align: right; }
+    th:first-child { text-align: left; }
+    td { padding: 10px 12px; border-bottom: 1px solid #d7dee6; text-align: right; color: #1f2933; }
+    td:first-child { text-align: left; }
+    .credit { color: #2f7d6d !important; font-weight: bold; }
+    .debit { color: #a23e48 !important; font-weight: bold; }
+    .car-breakdown { margin-top: 20px; font-size: 11px; color: #556575; line-height: 1.6; }
+    .car-breakdown div { padding: 8px 12px; background: #f8f9fa; border-left: 4px solid #233142; margin-top: 6px; border-radius: 0 4px 4px 0; }
+  `;
+  pdfTemplate.appendChild(styleTag);
 
-  // Canvas を使って日本語テキストを画像としてPDFに埋め込む関数
-  function addTextImage(text, x, yPos, opts = {}) {
-    const fontSize = opts.fontSize || 12;
-    const color    = opts.color    || "#1f2933";
-    const bold     = opts.bold     || false;
-    const maxW     = opts.maxW     || (CONTENT_W * 3.78); // mm→px 概算
+  // html2pdf.js のオプション設定
+  const options = {
+    margin:       10,
+    filename:     safeFileName(finalTitle) + '.pdf',
+    image:        { type: 'jpeg', quality: 0.98 },
+    html2canvas:  { scale: 2, useCORS: true, logging: false },
+    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+  };
 
-    const canvas = document.createElement("canvas");
-    const scale  = 3; // 高解像度
-    const ctx    = canvas.getContext("2d");
-    const font   = `${bold ? "bold " : ""}${fontSize * scale}px system-ui,sans-serif`;
-    ctx.font = font;
-    const measured = ctx.measureText(text).width;
-    canvas.width  = Math.min(measured + 4 * scale, maxW * scale);
-    canvas.height = (fontSize + 4) * scale;
-    ctx.font = font;
-    ctx.fillStyle = color;
-    ctx.textBaseline = "middle";
-    ctx.fillText(text, 2 * scale, canvas.height / 2);
-
-    const imgData = canvas.toDataURL("image/png");
-    const imgW    = canvas.width  / scale / 3.78; // px→mm
-    const imgH    = canvas.height / scale / 3.78;
-    doc.addImage(imgData, "PNG", x, yPos - imgH * 0.72, imgW, imgH);
-    return imgH;
-  }
-
-  // タイトル
-  addTextImage(title, MARGIN, y, { fontSize: 18, bold: true });
-  y += 9;
-  addTextImage(dateStr, MARGIN, y, { fontSize: 9, color: "#66788a" });
-  y += 6;
-  addTextImage(`合計: ${yen2(result.total)}　　マイナスは受け取る金額です`, MARGIN, y, { fontSize: 10 });
-  y += 9;
-
-  // 精算結果テーブルヘッダ背景
-  const colX = [MARGIN, MARGIN+42, MARGIN+84, MARGIN+126];
-  const colW = [42, 42, 42, 44];
-  const headers = ["名前", "支払済", "負担額", "精算額"];
-  doc.setFillColor(35, 49, 66);
-  doc.rect(MARGIN, y - 5, CONTENT_W, 7, "F");
-  headers.forEach((h, i) => {
-    addTextImage(h, colX[i] + 1, y, { fontSize: 9, color: "#ffffff", bold: true });
+  // 印刷ダイアログを完全にスルーして、直接ファイルとして保存（ダウンロード）させる
+  html2pdf().set(options).from(pdfTemplate).save().then(() => {
+    console.log("PDF download triggered successfully.");
+  }).catch(err => {
+    console.error("html2pdf error:", err);
+    alert("PDFファイルの自動ダウンロードに失敗しました。LINEなどの内外部アプリ内ブラウザ（In-App Browser）をご利用の場合は、右上のメニューから Safari や Chrome などの通常ブラウザに切り替えてもう一度お試しください。");
   });
-  y += 7;
-
-  // 精算結果 行
-  result.people.forEach((p, idx) => {
-    if (idx % 2 === 0) {
-      doc.setFillColor(240, 245, 248);
-      doc.rect(MARGIN, y - 5, CONTENT_W, 7, "F");
-    }
-    const settlColor = p.settlement < 0 ? "#2f7d6d" : "#a23e48";
-    addTextImage(p.name,              colX[0] + 1, y, { fontSize: 9 });
-    addTextImage(yen2(p.paid),        colX[1] + 1, y, { fontSize: 9 });
-    addTextImage(yen2(p.share),       colX[2] + 1, y, { fontSize: 9 });
-    addTextImage(yen2(p.settlement),  colX[3] + 1, y, { fontSize: 9, color: settlColor, bold: true });
-    y += 7;
-  });
-
-  y += 4;
-  // 車別内訳
-  addTextImage("車別内訳", MARGIN, y, { fontSize: 10, bold: true });
-  y += 6;
-  result.cars.forEach(c => {
-    const line = `${c.car_name}  ${c.distance}km  ガソリン ${yen2(c.gas_cost)}  高速 ${yen2(c.toll)}  駐車場 ${yen2(c.parking)}  一人 ${yen2(c.share)}`;
-    addTextImage(line, MARGIN, y, { fontSize: 8, color: "#66788a", maxW: CONTENT_W * 3.78 });
-    y += 5.5;
-  });
-
-  // ダウンロード
-  const safeFile = fileNameBase.replace(/[\\/:*?"<>|]/g, "_").replace(/\s+/g, " ").trim() || "travel-cost";
-  doc.save(`${safeFile}.pdf`);
 }
 
 // ── イベント ──
@@ -727,9 +681,6 @@ async function boot() {
   renderPeople(); renderCars(); renderHistory(); addTripCar();
 
   const pw = await ST.get('tc_password');
-  // pw===null → 初回（ログイン画面でパスワード設定）
-  // pw===""  → パスワードなし設定済み（そのままアプリ表示）
-  // pw===文字列 → パスワードあり（ログイン画面）
   if (pw === null || pw !== "") {
     document.getElementById('loginScreen').classList.add('active');
   } else {
