@@ -90,8 +90,8 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
   cursor: pointer; font-weight: 700; list-style: none;
 }
 .collapsible summary::-webkit-details-marker { display: none; }
-.collapsible summary::after { content: "開く"; color: var(--muted); font-size: 12px; }
-.collapsible[open] summary::after { content: "閉じる"; }
+.collapsible > summary::after { content: "開く"; color: var(--muted); font-size: 12px; }
+.collapsible[open] > summary::after { content: "閉じる"; }
 .collapsible[open] summary { margin-bottom: 12px; }
 
 /* ── 車カードsummary内の×ボタン ── */
