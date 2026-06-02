@@ -1,11 +1,9 @@
-<!doctype html>
-<html lang="ja">
-<head>
-<meta charset="utf-8">
+<!DOCTYPE html>
+<!-- saved from url=(0505)file:///C:/Users/zekky/OneDrive/%E3%83%89%E3%82%AD%E3%83%A5%E3%83%A1%E3%83%B3%E3%83%88/%E9%83%A8%E6%B4%BB%E4%BC%9A%E8%A8%88%E8%87%AA%E5%8B%95%E5%8C%96/%E4%BA%A4%E9%80%9A%E8%B2%BB%E8%A8%88%E7%AE%97%EF%BC%88%E7%87%83%E8%B2%BB%E3%80%81%E3%82%AC%E3%82%BD%E3%83%AA%E3%83%B3%E4%BB%A3%E5%9B%BA%E5%AE%9A%E3%81%AA%E3%81%97%EF%BC%89_files/%E4%BA%A4%E9%80%9A%E8%B2%BB%E8%A8%88%E7%AE%97%EF%BC%88%E7%87%83%E8%B2%BB%E3%80%81%E3%82%AC%E3%82%BD%E3%83%AA%E3%83%B3%E4%BB%A3%E5%9B%BA%E5%AE%9A%E3%81%AA%E3%81%97%EF%BC%89.html -->
+<html lang="ja"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>交通費計算</title>
-<!-- html2pdf.js のライブラリを読み込み（印刷ダイアログを通さずに直接PDFとして保存するため） -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <style>
 :root {
   color-scheme: light;
@@ -56,6 +54,7 @@ input, select { width: 100%; background: white; }
 button { cursor: pointer; border: 0; background: var(--accent); color: white; font-weight: 700; white-space: nowrap; }
 .secondary { background: #e7edf2; color: var(--primary); }
 
+/* ── ×ボタン修正: inline-flex でセンタリング ── */
 .icon-button, .delete-button {
   display: inline-flex;
   align-items: center;
@@ -80,6 +79,7 @@ button { cursor: pointer; border: 0; background: var(--accent); color: white; fo
   background: #eef7f4; border: 1px solid #cfe2dc; border-radius: 999px;
 }
 
+/* ── collapsible（メンバー・車・割り勘メンバー） ── */
 .collapsible { display: grid; gap: 12px; }
 .collapsible summary {
   display: flex; align-items: center; justify-content: space-between;
@@ -93,6 +93,7 @@ button { cursor: pointer; border: 0; background: var(--accent); color: white; fo
 .collapsible[open] summary::after { content: "閉じる"; }
 .collapsible[open] summary { margin-bottom: 12px; }
 
+/* ── 車カードsummary内の×ボタン ── */
 .car-summary { gap: 10px; }
 .car-summary::after { margin-left: auto; }
 .car-summary-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
@@ -131,6 +132,7 @@ th { background: var(--primary); color: white; }
 .muted { color: var(--muted); }
 .logout-btn { background: transparent; border: 1px solid rgba(255,255,255,0.4); color: white; font-weight: 400; font-size: 13px; min-height: 34px; padding: 0 12px; }
 
+/* 印刷CSS はすべて別ウィンドウ側で管理するためここには不要 */
 @media (max-width: 760px) {
   .app-header, .section-head, .actions, .summary, .history-item { align-items: stretch; flex-direction: column; }
   .shell, .grid-form, .trip-grid { grid-template-columns: 1fr; }
@@ -140,14 +142,14 @@ th { background: var(--primary); color: white; }
   th, td { padding: 8px 6px; }
 }
 </style>
-</head>
+<script src="file:///C:/Users/zekky/OneDrive/%E3%83%89%E3%82%AD%E3%83%A5%E3%83%A1%E3%83%B3%E3%83%88/%E9%83%A8%E6%B4%BB%E4%BC%9A%E8%A8%88%E8%87%AA%E5%8B%95%E5%8C%96/%E4%BA%A4%E9%80%9A%E8%B2%BB%E8%A8%88%E7%AE%97%EF%BC%88%E7%87%83%E8%B2%BB%E3%80%81%E3%82%AC%E3%82%BD%E3%83%AA%E3%83%B3%E4%BB%A3%E5%9B%BA%E5%AE%9A%E3%81%AA%E3%81%97%EF%BC%89_files/%E4%BA%A4%E9%80%9A%E8%B2%BB%E8%A8%88%E7%AE%97%EF%BC%88%E7%87%83%E8%B2%BB%E3%80%81%E3%82%AC%E3%82%BD%E3%83%AA%E3%83%B3%E4%BB%A3%E5%9B%BA%E5%AE%9A%E3%81%AA%E3%81%97%EF%BC%89_files/jspdf.umd.min.js.%E3%83%80%E3%82%A6%E3%83%B3%E3%83%AD%E3%83%BC%E3%83%89"></script></head>
 <body>
 
 <!-- ログイン画面 -->
-<div id="loginScreen">
+<div id="loginScreen" class="">
   <form id="loginForm" onsubmit="doLogin(event)">
     <h1>交通費計算</h1>
-    <input id="pwInput" type="password" placeholder="パスワード（なければ空欄）" autofocus>
+    <input id="pwInput" type="password" placeholder="パスワード（なければ空欄）" autofocus="">
     <p id="loginErr">パスワードが違います。</p>
     <button type="submit">ログイン</button>
     <p style="font-size:13px;color:var(--muted);margin:0;">初回アクセス時に入力した値がパスワードになります。空欄のままにするとパスワードなしで使えます。</p>
@@ -155,7 +157,7 @@ th { background: var(--primary); color: white; }
 </div>
 
 <!-- アプリ本体 -->
-<div id="app">
+<div id="app" class="active">
 <header class="app-header">
   <div>
     <p class="eyebrow">Transportation expense calculation</p>
@@ -168,28 +170,34 @@ th { background: var(--primary); color: white; }
   <!-- メンバー -->
   <section class="panel">
     <h2>メンバー</h2>
-    <details class="collapsible" open>
+    <details class="collapsible" open="">
       <summary>メンバー登録</summary>
       <form id="personForm" class="row-form">
-        <input name="name" placeholder="名前を追加" required>
+        <input name="name" placeholder="名前を追加" required="">
         <button>追加</button>
       </form>
-      <div id="peopleList" class="chips"></div>
+      <div id="peopleList" class="chips">
+    <span class="chip">れん<button class="delete-button" type="button" data-person-id="4" data-name="れん">×</button></span>
+  
+    <span class="chip">A<button class="delete-button" type="button" data-person-id="5" data-name="A">×</button></span>
+  </div>
     </details>
   </section>
 
   <!-- 車 -->
   <section class="panel">
     <h2>車</h2>
-    <details class="collapsible" open>
+    <details class="collapsible" open="">
       <summary>車登録</summary>
       <form id="carForm" class="grid-form">
-        <input name="name" placeholder="車名" required>
-        <input name="fuel_efficiency" type="number" step="0.1" min="0.1" value="15" placeholder="燃費 km/L">
-        <input name="gas_price" type="number" step="1" min="0" value="170" placeholder="ガソリン 円/L">
+        <input name="name" placeholder="車名" required="">
         <button>追加</button>
       </form>
-      <div id="carsList" class="chips"></div>
+      <div id="carsList" class="chips">
+    <span class="chip">車1<button class="delete-button" type="button" data-car-id="1" data-name="車1">×</button></span>
+  
+    <span class="chip">れん<button class="delete-button" type="button" data-car-id="2" data-name="れん">×</button></span>
+  </div>
     </details>
   </section>
 
@@ -201,43 +209,19 @@ th { background: var(--primary); color: white; }
     </div>
     <input id="tripTitle" class="title-input" placeholder="名称 例: 20○○-○○ 冬合宿">
     <input id="pdfFileName" class="title-input" placeholder="PDFファイル名 例: 20○○-○○ 冬合宿交通費精算">
-    <div id="tripCars" class="trip-cars"></div>
-    <div class="actions">
-      <button id="calculateButton">計算</button>
-      <button id="saveButton" class="secondary">履歴保存</button>
-      <button id="pdfButton" class="secondary">PDFファイル保存</button>
-    </div>
-  </section>
-
-  <!-- 精算結果 -->
-  <section class="panel wide" id="printTarget">
-    <h2>精算結果</h2>
-    <div id="summary" class="summary"></div>
-    <div id="resultTable"></div>
-  </section>
-
-  <!-- 履歴 -->
-  <section class="panel wide">
-    <h2>履歴</h2>
-    <div id="historyList" class="history"></div>
-  </section>
-</main>
-</div>
-
-<!-- 車カードのテンプレート -->
-<template id="tripCarTemplate">
+    <div id="tripCars" class="trip-cars">
   <article class="trip-card">
-    <details class="collapsible car-collapsible" open>
+    <details class="collapsible car-collapsible" open="">
       <summary class="car-summary">
-        <span class="car-summary-name">車の設定</span>
+        <span class="car-summary-name">車1 カーの設定</span>
         <button class="removeCar icon-button" title="この車を計算から外す" type="button">×</button>
       </summary>
       <div class="trip-card-head">
-        <select class="carSelect"></select>
+        <select class="carSelect"><option value="1">車1</option><option value="2">れん</option></select>
       </div>
       <div class="trip-grid">
-        <label>運転手<select class="driverSelect"></select></label>
-        <label>駐車場支払者<select class="parkingPayerSelect"></select></label>
+        <label>運転手<select class="driverSelect"><option value="4">れん</option><option value="5">A</option></select></label>
+        <label>駐車場支払者<select class="parkingPayerSelect"><option value="4">れん</option><option value="5">A</option></select></label>
         <label>距離 km<input class="distanceInput" type="number" step="0.1" min="0" value="0"></label>
         <label>往復<label class="switch"><input class="roundTripInput" type="checkbox"><span></span></label></label>
         <label>燃費 km/L<input class="fuelEfficiencyInput" type="number" step="0.1" min="0.1"></label>
@@ -245,12 +229,57 @@ th { background: var(--primary); color: white; }
         <label>高速代 円<input class="tollInput" type="number" step="1" min="0" value="0"></label>
         <label>駐車場代 円<input class="parkingInput" type="number" step="1" min="0" value="0"></label>
       </div>
-      <div class="participants"></div>
+      <div class="participants">
+    <details class="collapsible participant-collapsible" open="">
+      <summary>割り勘メンバー</summary>
+      <div class="participant-tools">
+        <button type="button" class="selectAllParticipants">全員選択</button>
+        <button type="button" class="clearAllParticipants">全員解除</button>
+      </div>
+      <div class="participant-list">
+        <label class="check"><input type="checkbox" class="participantInput" value="4" checked=""><span>れん</span></label><label class="check"><input type="checkbox" class="participantInput" value="5" checked=""><span>A</span></label>
+      </div>
+    </details></div>
     </details>
   </article>
-</template>
+</div>
+    <div class="actions">
+      <button id="calculateButton">計算</button>
+      <button id="saveButton" class="secondary">履歴保存</button>
+      <button id="pdfButton" class="secondary">PDF出力</button>
+    </div>
+  </section>
+
+  <!-- 精算結果 -->
+  <section class="panel wide" id="printTarget">
+    <h2>精算結果</h2>
+    <span id="printTitle" style="display:none"></span>
+    <span id="printDate" style="display:none"></span>
+    <div id="summary" class="summary"><strong>合計 0 円</strong><span>マイナスは受け取る金額です</span></div>
+    <div id="resultTable">
+    <table>
+      <thead><tr><th>名前</th><th>支払済</th><th>負担額</th><th>精算額</th></tr></thead>
+      <tbody><tr><td>れん</td><td>0 円</td><td>0 円</td><td class="debit">0 円</td></tr><tr><td>A</td><td>0 円</td><td>0 円</td><td class="debit">0 円</td></tr><tr><td>B</td><td>0 円</td><td>0 円</td><td class="debit">0 円</td></tr></tbody>
+    </table>
+    <div class="car-breakdown">
+      <div><strong>車1</strong> 0km / ガソリン 0 円 / 高速 0 円 / 駐車場 0 円 / 一人 0 円</div>
+    </div></div>
+  </section>
+
+  <!-- 履歴 -->
+  <section class="panel wide">
+    <h2>履歴</h2>
+    <div id="historyList" class="history"><p class="muted">保存した精算結果はまだありません。</p></div>
+  </section>
+</main>
+</div>
+
+<!-- 車カードのテンプレート -->
+<template id="tripCarTemplate"></template>
 
 <script>
+// window.storage がある環境（Artifactプレビュー）と
+// ない環境（ダウンロードしてブラウザで開く）の両方に対応
 const ST = (() => {
   const useWindowStorage = typeof window !== 'undefined' && window.storage && typeof window.storage.get === 'function';
   return {
@@ -312,17 +341,17 @@ const safeFileName = v => { const n = String(v||"").trim().replace(/[\\/:*?"<>|]
 // ── CRUD ──
 async function removePerson(id, name) {
   if (!confirm(`${name} を削除しますか？ 保存済み履歴の内容は残ります。`)) return;
-  state.people = state.people.filter(p => p.id !== Number(id));
+  state.people = state.people.filter(p => String(p.id) !== String(id));
   await persist(); renderPeople();
 }
 async function removeCar(id, name) {
   if (!confirm(`${name} を削除しますか？ 保存済み履歴の内容は残ります。`)) return;
-  state.cars = state.cars.filter(c => c.id !== Number(id));
+  state.cars = state.cars.filter(c => String(c.id) !== String(id));
   await persist(); renderCars();
 }
 async function removeTrip(id) {
   if (!confirm("この履歴を削除しますか？")) return;
-  state.trips = state.trips.filter(t => t.id !== Number(id));
+  state.trips = state.trips.filter(t => String(t.id) !== String(id));
   await persist(); renderHistory();
 }
 
@@ -339,7 +368,7 @@ function renderPeople() {
 
 function renderCars() {
   carsList.innerHTML = state.cars.map(c => `
-    <span class="chip">${esc(c.name)} ${c.fuel_efficiency}km/L ${yen(c.gas_price)}/L<button class="delete-button" type="button" data-car-id="${c.id}" data-name="${esc(c.name)}">×</button></span>
+    <span class="chip">${esc(c.name)}<button class="delete-button" type="button" data-car-id="${c.id}" data-name="${esc(c.name)}">×</button></span>
   `).join("");
   carsList.querySelectorAll("[data-car-id]").forEach(b =>
     b.addEventListener("click", () => removeCar(b.dataset.carId, b.dataset.name))
@@ -384,6 +413,7 @@ function setAllParticipants(card, checked) {
   card.querySelectorAll(".participantInput").forEach(i => { i.checked = checked; });
 }
 
+// ── ドラッグ選択（元のコードそのまま） ──
 function bindParticipantDrag(card) {
   const list = card.querySelector(".participant-list");
   let pointerActive = false, dragStarted = false, dragChecked = true;
@@ -427,10 +457,7 @@ function syncCarDefaults(card) {
   const car = state.cars.find(c => c.id === carId);
   if (!car) return;
   card.querySelector(".car-summary-name").textContent = `${car.name} カーの設定`;
-  const fuel = card.querySelector(".fuelEfficiencyInput");
-  const gas = card.querySelector(".gasPriceInput");
-  if (!fuel.value) fuel.value = car.fuel_efficiency;
-  if (!gas.value) gas.value = car.gas_price;
+  // 車名と同じ名前のメンバーがいれば運転手・駐車場支払者を自動セット
   const matched = state.people.find(p => p.name === car.name);
   if (matched) {
     card.querySelector(".driverSelect").value = String(matched.id);
@@ -438,7 +465,6 @@ function syncCarDefaults(card) {
   }
 }
 
-// 車追加ボタンのアクションを定義
 function addTripCar() {
   const fragment = tripCarTemplate.content.cloneNode(true);
   const card = fragment.querySelector(".trip-card");
@@ -474,6 +500,7 @@ function buildTripPayload() {
   };
 }
 
+// ── 計算ロジック ──
 function calculate_local(data) {
   const people = {};
   data.people.forEach(p => { people[String(p.id)] = p; });
@@ -560,80 +587,118 @@ async function loadTrip(event) {
   renderResult(trip.result);
 }
 
-// ── 🚀 新しいPDF保存ロジック（印刷ダイアログを一切使わず直接ダウンロード保存する） ──
-function exportPDF() {
-  // ライブラリの読み込みチェック
-  if (typeof html2pdf === "undefined") {
-    alert("PDF作成ライブラリを読み込んでいます。インターネット接続を確認し、数秒後にもう一度お試しください。");
-    return;
+// ── PDF出力（jsPDF によるファイル直接ダウンロード・印刷/プリンター一切不使用） ──
+async function exportPDF() {
+  // 計算未実施でも0円の結果で出力可能。結果がなければ自動計算する
+  const result = state.result || calculate_local(buildTripPayload());
+
+  const title   = tripTitle.value.trim() || "交通費精算結果";
+  const fileNameBase = document.getElementById("pdfFileName").value.trim() || title;
+  const dateStr = new Date().toLocaleString("ja-JP");
+  const yen2 = v => `${Math.round(v || 0).toLocaleString()} \u5186`;
+
+  // jsPDF をまだ読み込んでいなければ動的に読み込む
+  if (!window.jspdf) {
+    await new Promise((resolve, reject) => {
+      const s = document.createElement("script");
+      s.src = "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js";
+      s.onload = resolve;
+      s.onerror = () => reject(new Error("jsPDF の読み込みに失敗しました。ネットワーク接続を確認してください。"));
+      document.head.appendChild(s);
+    }).catch(e => { alert(e.message); throw e; });
   }
 
-  // 最新データを強制的に再計算
-  const result = state.result || calculate_local(buildTripPayload());
-  renderResult(result);
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: "mm", format: "a4" });
 
-  // ファイル名・タイトルの決定
-  const fileNameBox = document.getElementById("pdfFileName").value.trim();
-  const tripTitleBox = document.getElementById("tripTitle").value.trim() || "交通費精算結果";
-  const finalTitle = fileNameBox || tripTitleBox;
-  const dateStr = new Date().toLocaleString("ja-JP");
+  // 日本語フォントが埋め込めないため、文字化けしないよう
+  // 日本語テキストを画像化せず「英数字＋円記号」で表現しつつ
+  // Unicode対応フォント(Helvetica)で描画する
+  // ※ jsPDF 標準は Latin フォントのみなので、日本語は Base64 埋め込みフォントが必要。
+  //   ここでは外部依存を最小にするため、テキストを ASCII 安全な形に変換して出力する。
+  //   完全な日本語PDF が必要な場合は jspdf-autotable + フォント埋め込みが必要。
 
-  // 画面上に映らない、PDF出力専用の一時的なクリーンDOMを生成
-  const pdfTemplate = document.createElement("div");
-  pdfTemplate.style.padding = "15mm 12mm";
-  pdfTemplate.style.background = "#ffffff";
-  pdfTemplate.style.color = "#1f2933";
-  pdfTemplate.style.fontFamily = "system-ui, -apple-system, sans-serif";
+  // ── 日本語を含む文字列をそのまま使えるよう、Canvas経由で画像にしてPDFに貼る方式 ──
+  // A4: 210×297mm、描画領域: 170×257mm (margin 20mm)
+  const MARGIN = 14; // mm
+  const PAGE_W = 210;
+  const CONTENT_W = PAGE_W - MARGIN * 2;
+  const LINE = 7; // mm per line
+  let y = MARGIN + 6;
 
-  // テーブルやサマリーの中身を複製
-  const summaryContent = document.getElementById("summary").innerHTML;
-  const tableContent = document.getElementById("resultTable").innerHTML;
+  // Canvas を使って日本語テキストを画像としてPDFに埋め込む関数
+  function addTextImage(text, x, yPos, opts = {}) {
+    const fontSize = opts.fontSize || 12;
+    const color    = opts.color    || "#1f2933";
+    const bold     = opts.bold     || false;
+    const maxW     = opts.maxW     || (CONTENT_W * 3.78); // mm→px 概算
 
-  // PDFのHTML構造を美しくセットアップ
-  pdfTemplate.innerHTML = `
-    <h1 style="font-size: 22px; font-weight: bold; margin: 0 0 4px 0; color: #233142;">${esc(finalTitle)}</h1>
-    <p style="font-size: 11px; color: #66788a; margin: 0 0 16px 0;">出力日時: ${dateStr}</p>
-    
-    <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #eef3f6; border-radius: 6px; font-size: 14px; margin-bottom: 16px; font-weight: bold;">
-      ${summaryContent}
-    </div>
-    
-    <div class="pdf-table-wrapper">
-      ${tableContent}
-    </div>
-  `;
+    const canvas = document.createElement("canvas");
+    const scale  = 3; // 高解像度
+    const ctx    = canvas.getContext("2d");
+    const font   = `${bold ? "bold " : ""}${fontSize * scale}px system-ui,sans-serif`;
+    ctx.font = font;
+    const measured = ctx.measureText(text).width;
+    canvas.width  = Math.min(measured + 4 * scale, maxW * scale);
+    canvas.height = (fontSize + 4) * scale;
+    ctx.font = font;
+    ctx.fillStyle = color;
+    ctx.textBaseline = "middle";
+    ctx.fillText(text, 2 * scale, canvas.height / 2);
 
-  // スタイルの注入（html2pdfがCSS変数を読み込めないケースに対応するため、インライン上書き用のstyleを用意）
-  const styleTag = document.createElement("style");
-  styleTag.textContent = `
-    table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 13px; }
-    th { background: #233142 !important; color: white !important; padding: 10px 12px; text-align: right; }
-    th:first-child { text-align: left; }
-    td { padding: 10px 12px; border-bottom: 1px solid #d7dee6; text-align: right; color: #1f2933; }
-    td:first-child { text-align: left; }
-    .credit { color: #2f7d6d !important; font-weight: bold; }
-    .debit { color: #a23e48 !important; font-weight: bold; }
-    .car-breakdown { margin-top: 20px; font-size: 11px; color: #556575; line-height: 1.6; }
-    .car-breakdown div { padding: 8px 12px; background: #f8f9fa; border-left: 4px solid #233142; margin-top: 6px; border-radius: 0 4px 4px 0; }
-  `;
-  pdfTemplate.appendChild(styleTag);
+    const imgData = canvas.toDataURL("image/png");
+    const imgW    = canvas.width  / scale / 3.78; // px→mm
+    const imgH    = canvas.height / scale / 3.78;
+    doc.addImage(imgData, "PNG", x, yPos - imgH * 0.72, imgW, imgH);
+    return imgH;
+  }
 
-  // html2pdf.js のオプション設定
-  const options = {
-    margin:       10,
-    filename:     safeFileName(finalTitle) + '.pdf',
-    image:        { type: 'jpeg', quality: 0.98 },
-    html2canvas:  { scale: 2, useCORS: true, logging: false },
-    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-  };
+  // タイトル
+  addTextImage(title, MARGIN, y, { fontSize: 18, bold: true });
+  y += 9;
+  addTextImage(dateStr, MARGIN, y, { fontSize: 9, color: "#66788a" });
+  y += 6;
+  addTextImage(`合計: ${yen2(result.total)}　　マイナスは受け取る金額です`, MARGIN, y, { fontSize: 10 });
+  y += 9;
 
-  // 印刷ダイアログを完全にスルーして、直接ファイルとして保存（ダウンロード）させる
-  html2pdf().set(options).from(pdfTemplate).save().then(() => {
-    console.log("PDF download triggered successfully.");
-  }).catch(err => {
-    console.error("html2pdf error:", err);
-    alert("PDFファイルの自動ダウンロードに失敗しました。LINEなどの内外部アプリ内ブラウザ（In-App Browser）をご利用の場合は、右上のメニューから Safari や Chrome などの通常ブラウザに切り替えてもう一度お試しください。");
+  // 精算結果テーブルヘッダ背景
+  const colX = [MARGIN, MARGIN+42, MARGIN+84, MARGIN+126];
+  const colW = [42, 42, 42, 44];
+  const headers = ["名前", "支払済", "負担額", "精算額"];
+  doc.setFillColor(35, 49, 66);
+  doc.rect(MARGIN, y - 5, CONTENT_W, 7, "F");
+  headers.forEach((h, i) => {
+    addTextImage(h, colX[i] + 1, y, { fontSize: 9, color: "#ffffff", bold: true });
   });
+  y += 7;
+
+  // 精算結果 行
+  result.people.forEach((p, idx) => {
+    if (idx % 2 === 0) {
+      doc.setFillColor(240, 245, 248);
+      doc.rect(MARGIN, y - 5, CONTENT_W, 7, "F");
+    }
+    const settlColor = p.settlement < 0 ? "#2f7d6d" : "#a23e48";
+    addTextImage(p.name,              colX[0] + 1, y, { fontSize: 9 });
+    addTextImage(yen2(p.paid),        colX[1] + 1, y, { fontSize: 9 });
+    addTextImage(yen2(p.share),       colX[2] + 1, y, { fontSize: 9 });
+    addTextImage(yen2(p.settlement),  colX[3] + 1, y, { fontSize: 9, color: settlColor, bold: true });
+    y += 7;
+  });
+
+  y += 4;
+  // 車別内訳
+  addTextImage("車別内訳", MARGIN, y, { fontSize: 10, bold: true });
+  y += 6;
+  result.cars.forEach(c => {
+    const line = `${c.car_name}  ${c.distance}km  ガソリン ${yen2(c.gas_cost)}  高速 ${yen2(c.toll)}  駐車場 ${yen2(c.parking)}  一人 ${yen2(c.share)}`;
+    addTextImage(line, MARGIN, y, { fontSize: 8, color: "#66788a", maxW: CONTENT_W * 3.78 });
+    y += 5.5;
+  });
+
+  // ダウンロード
+  const safeFile = fileNameBase.replace(/[\\/:*?"<>|]/g, "_").replace(/\s+/g, " ").trim() || "travel-cost";
+  doc.save(`${safeFile}.pdf`);
 }
 
 // ── イベント ──
@@ -654,8 +719,8 @@ carForm.addEventListener("submit", async event => {
   if (!name) return;
   if (state.cars.find(c => c.name === name)) { alert("同じ車名が登録済みです"); return; }
   const id = state.cars.length ? Math.max(...state.cars.map(c => c.id)) + 1 : 1;
-  state.cars.push({ id, name, fuel_efficiency: parseFloat(body.fuel_efficiency) || 15, gas_price: parseFloat(body.gas_price) || 170 });
-  carForm.reset(); carForm.fuel_efficiency.value = 15; carForm.gas_price.value = 170;
+  state.cars.push({ id, name });
+  carForm.reset();
   await persist(); renderCars();
 });
 
@@ -676,11 +741,14 @@ async function boot() {
     ST.get('tc_people'), ST.get('tc_cars'), ST.get('tc_trips')
   ]);
   state.people = (savedPeople && savedPeople.length) ? savedPeople : [{ id:1, name:"運転手" }, { id:2, name:"参加者A" }, { id:3, name:"参加者B" }];
-  state.cars   = (savedCars && savedCars.length)   ? savedCars   : [{ id:1, name:"車1", fuel_efficiency:15, gas_price:170 }];
+  state.cars   = (savedCars && savedCars.length)   ? savedCars   : [{ id:1, name:"車1" }];
   state.trips  = (savedTrips && savedTrips.length)  ? savedTrips  : [];
   renderPeople(); renderCars(); renderHistory(); addTripCar();
 
   const pw = await ST.get('tc_password');
+  // pw===null → 初回（ログイン画面でパスワード設定）
+  // pw===""  → パスワードなし設定済み（そのままアプリ表示）
+  // pw===文字列 → パスワードあり（ログイン画面）
   if (pw === null || pw !== "") {
     document.getElementById('loginScreen').classList.add('active');
   } else {
@@ -690,5 +758,6 @@ async function boot() {
 
 boot();
 </script>
-</body>
-</html>
+
+
+</body></html>
