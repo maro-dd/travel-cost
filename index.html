@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0043)file:///C:/Users/zekky/Downloads/index.html -->
+<!-- saved from url=(0043)https://zeki-omusubi.github.io/travel-cost/ -->
 <html lang="ja"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -179,18 +179,18 @@ th { background: var(--primary); color: white; }
   <!-- メンバー -->
   <section class="panel">
     <h2>メンバー</h2>
-    <details class="collapsible">
+    <details class="collapsible" open="">
       <summary>メンバー登録</summary>
       <form id="personForm" class="row-form">
         <input name="name" placeholder="名前を追加" required="">
         <button>追加</button>
       </form>
       <div id="peopleList" class="chips">
-    <span class="chip">れん<button class="delete-button" type="button" data-person-id="4" data-name="れん">×</button></span>
+    <span class="chip">運転手<button class="delete-button" type="button" data-person-id="1" data-name="運転手">×</button></span>
   
-    <span class="chip">A<button class="delete-button" type="button" data-person-id="5" data-name="A">×</button></span>
+    <span class="chip">参加者A<button class="delete-button" type="button" data-person-id="2" data-name="参加者A">×</button></span>
   
-    <span class="chip">参加者B<button class="delete-button" type="button" data-person-id="6" data-name="参加者B">×</button></span>
+    <span class="chip">参加者B<button class="delete-button" type="button" data-person-id="3" data-name="参加者B">×</button></span>
   </div>
     </details>
   </section>
@@ -198,7 +198,7 @@ th { background: var(--primary); color: white; }
   <!-- 車 -->
   <section class="panel">
     <h2>車</h2>
-    <details class="collapsible">
+    <details class="collapsible" open="">
       <summary>車登録</summary>
       <form id="carForm" class="grid-form">
         <input name="name" placeholder="車名" required="">
@@ -207,7 +207,7 @@ th { background: var(--primary); color: white; }
       <div id="carsList" class="chips">
     <span class="chip">車1<button class="delete-button" type="button" data-car-id="1" data-name="車1">×</button></span>
   
-    <span class="chip">れん<button class="delete-button" type="button" data-car-id="2" data-name="れん">×</button></span>
+    <span class="chip">車2<button class="delete-button" type="button" data-car-id="2" data-name="車2">×</button></span>
   </div>
     </details>
   </section>
@@ -228,13 +228,13 @@ th { background: var(--primary); color: white; }
         <button class="removeCar icon-button" title="この車を計算から外す" type="button">×</button>
       </summary>
       <div class="trip-card-head">
-        <select class="carSelect"><option value="1">車1</option><option value="2" disabled="">れん</option></select>
+        <select class="carSelect"><option value="1">車1</option><option value="2" disabled="">車2</option></select>
       </div>
       <div class="trip-grid">
-        <label>運転手<select class="driverSelect"><option value="4">れん</option><option value="5">A</option><option value="6">参加者B</option></select></label>
-        <label>駐車場支払者<select class="parkingPayerSelect"><option value="4">れん</option><option value="5">A</option><option value="6">参加者B</option></select></label>
+        <label>運転手<select class="driverSelect"><option value="1">運転手</option><option value="2">参加者A</option><option value="3">参加者B</option></select></label>
+        <label>駐車場支払者<select class="parkingPayerSelect"><option value="1">運転手</option><option value="2">参加者A</option><option value="3">参加者B</option></select></label>
         <label>距離 km<div class="number-stepper"><input class="distanceInput" type="number" step="0.1" min="0" value="0"><button class="step-button" type="button" data-step="1">+</button><button class="step-button" type="button" data-step="-1">-</button></div></label>
-        <label>登録距離<div class="distance-tools"><select class="distancePresetSelect"><option value="">登録距離を選択</option><option value="2">戸狩 (400km)</option></select><button class="saveDistancePreset" type="button">登録</button><button class="deleteDistancePreset" type="button">削除</button></div></label>
+        <label>登録距離<div class="distance-tools"><select class="distancePresetSelect"><option value="">登録距離を選択</option></select><button class="saveDistancePreset" type="button">登録</button><button class="deleteDistancePreset" type="button">削除</button></div></label>
         <label>往復<label class="switch"><input class="roundTripInput" type="checkbox"><span></span></label></label>
         <label>燃費 km/L<div class="number-stepper"><input class="fuelEfficiencyInput" type="number" step="0.1" min="0.1" value="15"><button class="step-button" type="button" data-step="1">+</button><button class="step-button" type="button" data-step="-1">-</button></div></label>
         <label>ガソリン 円/L<div class="number-stepper"><input class="gasPriceInput" type="number" step="1" min="0" value="170"><button class="step-button" type="button" data-step="1">+</button><button class="step-button" type="button" data-step="-1">-</button></div></label>
@@ -249,7 +249,7 @@ th { background: var(--primary); color: white; }
         <button type="button" class="clearAllParticipants">全員解除</button>
       </div>
       <div class="participant-list">
-        <label class="check"><input type="checkbox" class="participantInput" value="4" checked=""><span>れん</span></label><label class="check"><input type="checkbox" class="participantInput" value="5" checked=""><span>A</span></label><label class="check"><input type="checkbox" class="participantInput" value="6" checked=""><span>参加者B</span></label>
+        <label class="check"><input type="checkbox" class="participantInput" value="1"><span>運転手</span></label><label class="check"><input type="checkbox" class="participantInput" value="2"><span>参加者A</span></label><label class="check"><input type="checkbox" class="participantInput" value="3"><span>参加者B</span></label>
       </div>
     </details></div>
     </details>
@@ -258,17 +258,17 @@ th { background: var(--primary); color: white; }
   <article class="trip-card">
     <details class="collapsible car-collapsible">
       <summary class="car-summary">
-        <span class="car-summary-name">れん カーの設定</span>
+        <span class="car-summary-name">車2 カーの設定</span>
         <button class="removeCar icon-button" title="この車を計算から外す" type="button">×</button>
       </summary>
       <div class="trip-card-head">
-        <select class="carSelect"><option value="1" disabled="">車1</option><option value="2">れん</option></select>
+        <select class="carSelect"><option value="1" disabled="">車1</option><option value="2">車2</option></select>
       </div>
       <div class="trip-grid">
-        <label>運転手<select class="driverSelect"><option value="4">れん</option><option value="5">A</option><option value="6">参加者B</option></select></label>
-        <label>駐車場支払者<select class="parkingPayerSelect"><option value="4">れん</option><option value="5">A</option><option value="6">参加者B</option></select></label>
+        <label>運転手<select class="driverSelect"><option value="1">運転手</option><option value="2">参加者A</option><option value="3">参加者B</option></select></label>
+        <label>駐車場支払者<select class="parkingPayerSelect"><option value="1">運転手</option><option value="2">参加者A</option><option value="3">参加者B</option></select></label>
         <label>距離 km<div class="number-stepper"><input class="distanceInput" type="number" step="0.1" min="0" value="0"><button class="step-button" type="button" data-step="1">+</button><button class="step-button" type="button" data-step="-1">-</button></div></label>
-        <label>登録距離<div class="distance-tools"><select class="distancePresetSelect"><option value="">登録距離を選択</option><option value="2">戸狩 (400km)</option></select><button class="saveDistancePreset" type="button">登録</button><button class="deleteDistancePreset" type="button">削除</button></div></label>
+        <label>登録距離<div class="distance-tools"><select class="distancePresetSelect"><option value="">登録距離を選択</option></select><button class="saveDistancePreset" type="button">登録</button><button class="deleteDistancePreset" type="button">削除</button></div></label>
         <label>往復<label class="switch"><input class="roundTripInput" type="checkbox"><span></span></label></label>
         <label>燃費 km/L<div class="number-stepper"><input class="fuelEfficiencyInput" type="number" step="0.1" min="0.1" value="15"><button class="step-button" type="button" data-step="1">+</button><button class="step-button" type="button" data-step="-1">-</button></div></label>
         <label>ガソリン 円/L<div class="number-stepper"><input class="gasPriceInput" type="number" step="1" min="0" value="170"><button class="step-button" type="button" data-step="1">+</button><button class="step-button" type="button" data-step="-1">-</button></div></label>
@@ -283,7 +283,7 @@ th { background: var(--primary); color: white; }
         <button type="button" class="clearAllParticipants">全員解除</button>
       </div>
       <div class="participant-list">
-        <label class="check"><input type="checkbox" class="participantInput" value="4" checked=""><span>れん</span></label><label class="check"><input type="checkbox" class="participantInput" value="5" checked=""><span>A</span></label><label class="check"><input type="checkbox" class="participantInput" value="6" checked=""><span>参加者B</span></label>
+        <label class="check"><input type="checkbox" class="participantInput" value="1"><span>運転手</span></label><label class="check"><input type="checkbox" class="participantInput" value="2"><span>参加者A</span></label><label class="check"><input type="checkbox" class="participantInput" value="3"><span>参加者B</span></label>
       </div>
     </details></div>
     </details>
@@ -301,14 +301,14 @@ th { background: var(--primary); color: white; }
     <h2>精算結果</h2>
     <span id="printTitle" style="display:none"></span>
     <span id="printDate" style="display:none"></span>
-    <div id="summary" class="summary"><strong>合計 13,600 円</strong><span>計算誤差 100 円 / マイナスは受け取る金額です</span></div>
+    <div id="summary" class="summary"><strong>合計 0 円</strong><span>計算誤差 0 円 / マイナスは受け取る金額です</span></div>
     <div id="resultTable">
     <table>
       <thead><tr><th>名前</th><th>支払済</th><th>負担額</th><th>精密な精算額</th><th>切上精算額</th></tr></thead>
-      <tbody><tr><td>れん</td><td>13,600 円</td><td>4,533 円</td><td class="credit">-9,067 円</td><td class="credit">-9,100 円</td></tr><tr><td>A</td><td>0 円</td><td>4,533 円</td><td class="debit">4,533 円</td><td class="debit">4,600 円</td></tr><tr><td>参加者B</td><td>0 円</td><td>4,533 円</td><td class="debit">4,533 円</td><td class="debit">4,600 円</td></tr></tbody>
+      <tbody><tr><td>運転手</td><td>0 円</td><td>0 円</td><td class="debit">0 円</td><td class="debit">0 円</td></tr><tr><td>参加者A</td><td>0 円</td><td>0 円</td><td class="debit">0 円</td><td class="debit">0 円</td></tr><tr><td>参加者B</td><td>0 円</td><td>0 円</td><td class="debit">0 円</td><td class="debit">0 円</td></tr></tbody>
     </table>
     <div class="car-breakdown">
-      <div><strong>車1</strong> 800km / ガソリン 9,067 円 / 高速 0 円 / 駐車場 0 円 / 一人 3,022 円</div><div><strong>れん</strong> 400km / ガソリン 4,533 円 / 高速 0 円 / 駐車場 0 円 / 一人 1,511 円</div>
+      <div><strong>車1</strong> 0km / ガソリン 0 円 / 高速 0 円 / 駐車場 0 円 / 一人 0 円</div><div><strong>車2</strong> 0km / ガソリン 0 円 / 高速 0 円 / 駐車場 0 円 / 一人 0 円</div>
     </div></div>
   </section>
 
@@ -953,4 +953,4 @@ boot();
 
 
 
-</body></html>
+<div id="UMS_TOOLTIP" style="position: absolute; cursor: pointer; z-index: 2147483647; background: transparent; top: -100000px; left: -100000px;"></div><div id="trend_notification_app" class="trend_notification_app_outer"><div id="trend_notification"><div id="trend_notification_con"></div></div></div></body><umsdataelement id="UMSDataElement" style="display: none;"></umsdataelement><div id="tmtoolbar_manual_rating_injected" style="display: none;">init</div><div id="UMSSendDataEventElement" style="display: none;">init</div></html>
