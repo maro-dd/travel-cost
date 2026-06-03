@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0083)file:///C:/Users/zekky/Downloads/%E4%BA%A4%E9%80%9A%E8%B2%BB%E8%A8%88%E7%AE%97.html -->
+<!-- saved from url=(0379)file:///C:/Users/zekky/OneDrive/%E3%83%89%E3%82%AD%E3%83%A5%E3%83%A1%E3%83%B3%E3%83%88/%E9%83%A8%E6%B4%BB%E4%BC%9A%E8%A8%88%E8%87%AA%E5%8B%95%E5%8C%96/%E4%BA%A4%E9%80%9A%E8%B2%BB%E8%A8%88%E7%AE%97%EF%BC%88%E7%87%83%E8%B2%BB%E3%80%81%E3%82%AC%E3%82%BD%E3%83%AA%E3%83%B3%E4%BB%A3%E5%9B%BA%E5%AE%9A%E3%81%AA%E3%81%97%EF%BC%89_files/%E4%BA%A4%E9%80%9A%E8%B2%BB%E8%A8%88%E7%AE%97.html -->
 <html lang="ja"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -151,7 +151,7 @@ th { background: var(--primary); color: white; }
   th, td { padding: 8px 6px; }
 }
 </style>
-<script src="file:///C:/Users/zekky/Downloads/%E4%BA%A4%E9%80%9A%E8%B2%BB%E8%A8%88%E7%AE%97_files/jspdf.umd.min.js.%E3%83%80%E3%82%A6%E3%83%B3%E3%83%AD%E3%83%BC%E3%83%89"></script></head>
+<script src="file:///C:/Users/zekky/Downloads/%E4%BA%A4%E9%80%9A%E8%B2%BB%E8%A8%88%E7%AE%97_files/jspdf.umd.min.js.%E3%83%80%E3%82%A6%E3%83%B3%E3%83%AD%E3%83%BC%E3%83%89"></script><script src="./index_files/jspdf.umd.min.js.ダウンロード"></script></head>
 <body>
 
 <!-- ログイン画面 -->
@@ -179,7 +179,7 @@ th { background: var(--primary); color: white; }
   <!-- メンバー -->
   <section class="panel">
     <h2>メンバー</h2>
-    <details class="collapsible" open="">
+    <details class="collapsible">
       <summary>メンバー登録</summary>
       <form id="personForm" class="row-form">
         <input name="name" placeholder="名前を追加" required="">
@@ -190,7 +190,7 @@ th { background: var(--primary); color: white; }
   
     <span class="chip">参加者A<button class="delete-button" type="button" data-person-id="8" data-name="参加者A">×</button></span>
   
-    <span class="chip">参加者B<button class="delete-button" type="button" data-person-id="9" data-name="参加者B">×</button></span>
+    <span class="chip">２<button class="delete-button" type="button" data-person-id="9" data-name="２">×</button></span>
   </div>
     </details>
   </section>
@@ -198,7 +198,7 @@ th { background: var(--primary); color: white; }
   <!-- 車 -->
   <section class="panel">
     <h2>車</h2>
-    <details class="collapsible" open="">
+    <details class="collapsible">
       <summary>車登録</summary>
       <form id="carForm" class="grid-form">
         <input name="name" placeholder="車名" required="">
@@ -206,6 +206,10 @@ th { background: var(--primary); color: white; }
       </form>
       <div id="carsList" class="chips">
     <span class="chip">車1<button class="delete-button" type="button" data-car-id="1" data-name="車1">×</button></span>
+  
+    <span class="chip">２<button class="delete-button" type="button" data-car-id="2" data-name="２">×</button></span>
+  
+    <span class="chip">参加者B<button class="delete-button" type="button" data-car-id="3" data-name="参加者B">×</button></span>
   </div>
     </details>
   </section>
@@ -214,32 +218,11 @@ th { background: var(--primary); color: white; }
   <section class="panel wide">
     <div class="section-head">
       <h2>計算</h2>
-      <button id="addTripCarButton" class="secondary" type="button" disabled="">車を追加</button>
+      <button id="addTripCarButton" class="secondary" type="button">車を追加</button>
     </div>
     <input id="tripTitle" class="title-input" placeholder="名称 例: 20○○-○○ 冬合宿">
     <input id="pdfFileName" class="title-input" placeholder="PDFファイル名 例: 20○○-○○ 冬合宿交通費精算">
-    <div id="tripCars" class="trip-cars">
-  <article class="trip-card">
-    <details class="collapsible car-collapsible">
-      <summary class="car-summary">
-        <span class="car-summary-name">車1 カーの設定</span>
-        <button class="removeCar icon-button" title="この車を計算から外す" type="button">×</button>
-      </summary>
-      <div class="trip-card-head">
-        <select class="carSelect"><option value="1">車1</option></select>
-      </div>
-      <div class="trip-grid">
-        <label>運転手<select class="driverSelect"><option value="7">運転手</option><option value="8">参加者A</option><option value="9">参加者B</option></select></label>
-        <label>駐車場支払者<select class="parkingPayerSelect"><option value="7">運転手</option><option value="8">参加者A</option><option value="9">参加者B</option></select></label>
-        <label>距離 km<div class="number-stepper"><input class="distanceInput" type="number" step="0.1" min="0" value="0"><button class="step-button" type="button" data-step="1">+</button><button class="step-button" type="button" data-step="-1">-</button></div></label>
-        <label>登録距離<div class="distance-tools"><select class="distancePresetSelect"><option value="">登録距離を選択</option><option value="2">戸狩 (400km)</option></select><button class="saveDistancePreset" type="button">登録</button><button class="deleteDistancePreset" type="button">削除</button></div></label>
-        <label>往復<label class="switch"><input class="roundTripInput" type="checkbox"><span></span></label></label>
-        <label>燃費 km/L<div class="number-stepper"><input class="fuelEfficiencyInput" type="number" step="0.1" min="0.1" value="15"><button class="step-button" type="button" data-step="1">+</button><button class="step-button" type="button" data-step="-1">-</button></div></label>
-        <label>ガソリン 円/L<div class="number-stepper"><input class="gasPriceInput" type="number" step="1" min="0" value="170"><button class="step-button" type="button" data-step="1">+</button><button class="step-button" type="button" data-step="-1">-</button></div></label>
-        <label>高速代 円<div class="number-stepper"><input class="tollInput" type="number" step="1" min="0" value="0"><button class="step-button" type="button" data-step="1">+</button><button class="step-button" type="button" data-step="-1">-</button></div></label>
-        <label>駐車場代 円<div class="number-stepper"><input class="parkingInput" type="number" step="1" min="0" value="0"><button class="step-button" type="button" data-step="1">+</button><button class="step-button" type="button" data-step="-1">-</button></div></label>
-      </div>
-      <div class="participants">
+    <div id="tripCars" class="trip-cars"><article class="trip-card"><details class="collapsible car-collapsible" open=""><summary class="car-summary"><span class="car-summary-name">車1 カーの設定</span><button class="removeCar icon-button" title="この車を計算から外す" type="button">×</button></summary><div class="trip-card-head"><select class="carSelect"><option value="1">車1</option><option value="2">２</option><option value="3">参加者B</option></select></div><div class="trip-grid"><label>運転手<select class="driverSelect"><option value="7">運転手</option><option value="8">参加者A</option><option value="9">２</option></select></label><label>駐車場支払者<select class="parkingPayerSelect"><option value="7">運転手</option><option value="8">参加者A</option><option value="9">２</option></select></label><label>距離 km<div class="number-stepper"><input class="distanceInput" type="number" step="0.1" min="0" value="0"><button class="step-button" type="button" data-step="1">+</button><button class="step-button" type="button" data-step="-1">-</button></div></label><label>登録距離<div class="distance-tools"><select class="distancePresetSelect"><option value="">登録距離を選択</option></select><button class="saveDistancePreset" type="button">登録</button><button class="deleteDistancePreset" type="button">削除</button></div></label><label>往復<label class="switch"><input class="roundTripInput" type="checkbox"><span></span></label></label><label>燃費 km/L<div class="number-stepper"><input class="fuelEfficiencyInput" type="number" step="0.1" min="0.1" value="15"><button class="step-button" type="button" data-step="1">+</button><button class="step-button" type="button" data-step="-1">-</button></div></label><label>ガソリン 円/L<div class="number-stepper"><input class="gasPriceInput" type="number" step="1" min="0" value="170"><button class="step-button" type="button" data-step="1">+</button><button class="step-button" type="button" data-step="-1">-</button></div></label><label>高速代 円<div class="number-stepper"><input class="tollInput" type="number" step="1" min="0" value="0"><button class="step-button" type="button" data-step="1">+</button><button class="step-button" type="button" data-step="-1">-</button></div></label><label>駐車場代 円<div class="number-stepper"><input class="parkingInput" type="number" step="1" min="0" value="0"><button class="step-button" type="button" data-step="1">+</button><button class="step-button" type="button" data-step="-1">-</button></div></label></div><div class="participants">
     <details class="collapsible participant-collapsible" open="">
       <summary>割り勘メンバー</summary>
       <div class="participant-tools">
@@ -247,12 +230,9 @@ th { background: var(--primary); color: white; }
         <button type="button" class="clearAllParticipants">全員解除</button>
       </div>
       <div class="participant-list">
-        <label class="check"><input type="checkbox" class="participantInput" value="7" checked=""><span>運転手</span></label><label class="check"><input type="checkbox" class="participantInput" value="8" checked=""><span>参加者A</span></label><label class="check"><input type="checkbox" class="participantInput" value="9" checked=""><span>参加者B</span></label>
+        <label class="check"><input type="checkbox" class="participantInput" value="7" checked=""><span>運転手</span></label><label class="check"><input type="checkbox" class="participantInput" value="8" checked=""><span>参加者A</span></label><label class="check"><input type="checkbox" class="participantInput" value="9" checked=""><span>２</span></label>
       </div>
-    </details></div>
-    </details>
-  </article>
-</div>
+    </details></div></details></article></div>
     <div class="actions">
       <button id="calculateButton">計算</button>
       <button id="saveButton" class="secondary">履歴保存</button>
@@ -265,14 +245,14 @@ th { background: var(--primary); color: white; }
     <h2>精算結果</h2>
     <span id="printTitle" style="display:none"></span>
     <span id="printDate" style="display:none"></span>
-    <div id="summary" class="summary"><strong>合計 0 円</strong><span>計算誤差 0 円 / マイナスは受け取る金額です</span></div>
+    <div id="summary" class="summary"><strong>合計 9,067 円</strong><span>計算誤差 100 円 / マイナスは受け取る金額です</span></div>
     <div id="resultTable">
     <table>
       <thead><tr><th>名前</th><th>支払済</th><th>負担額</th><th>精密な精算額</th><th>切上精算額</th></tr></thead>
-      <tbody><tr><td>運転手</td><td>0 円</td><td>0 円</td><td class="debit">0 円</td><td class="debit">0 円</td></tr><tr><td>参加者A</td><td>0 円</td><td>0 円</td><td class="debit">0 円</td><td class="debit">0 円</td></tr><tr><td>参加者B</td><td>0 円</td><td>0 円</td><td class="debit">0 円</td><td class="debit">0 円</td></tr></tbody>
+      <tbody><tr><td>運転手</td><td>9,067 円</td><td>3,022 円</td><td class="credit">-6,045 円</td><td class="credit">-6,100 円</td></tr><tr><td>参加者A</td><td>0 円</td><td>3,022 円</td><td class="debit">3,022 円</td><td class="debit">3,100 円</td></tr><tr><td>２</td><td>0 円</td><td>3,022 円</td><td class="debit">3,022 円</td><td class="debit">3,100 円</td></tr></tbody>
     </table>
     <div class="car-breakdown">
-      <div><strong>車1</strong> 0km / ガソリン 0 円 / 高速 0 円 / 駐車場 0 円 / 一人 0 円</div><div><strong>車2</strong> 0km / ガソリン 0 円 / 高速 0 円 / 駐車場 0 円 / 一人 0 円</div>
+      <div><strong>車1</strong> 800km / ガソリン 9,067 円 / 高速 0 円 / 駐車場 0 円 / 一人 3,022 円</div>
     </div></div>
   </section>
 
@@ -284,8 +264,7 @@ th { background: var(--primary); color: white; }
 </main>
 </div>
 
-<!-- 車カードのテンプレート -->
-<template id="tripCarTemplate"></template>
+<!-- 車カードのテンプレートはJS内で定義 -->
 
 <script>
 // window.storage がある環境（Artifactプレビュー）と
@@ -598,17 +577,57 @@ function bindDistancePresetControls(card) {
   });
 }
 
-function addTripCar() {
-  if (state.cars.length === 0) {
-    alert("車を登録してから追加してください");
-    return;
-  }
-  if (getTripCards().length >= state.cars.length) {
-    alert("登録済みの車の台数以上は追加できません");
-    return;
-  }
-  const fragment = tripCarTemplate.content.cloneNode(true);
-  const card = fragment.querySelector(".trip-card");
+// ── 車カードHTML（JS文字列で管理。ブラウザの「名前を付けて保存」で壊れない）──
+function _makeTripCardHTML() {
+  return '<article class="trip-card">'
+    + '<details class="collapsible car-collapsible">'
+      + '<summary class="car-summary">'
+        + '<span class="car-summary-name">\u30ab\u30fc\u306e\u8a2d\u5b9a</span>'
+        + '<button class="removeCar icon-button" title="\u3053\u306e\u8eca\u3092\u8a08\u7b97\u304b\u3089\u5916\u3059" type="button">\u00d7</button>'
+      + '</summary>'
+      + '<div class="trip-card-head"><select class="carSelect"></select></div>'
+      + '<div class="trip-grid">'
+        + '<label>\u904b\u8ee2\u624b<select class="driverSelect"></select></label>'
+        + '<label>\u99d0\u8eca\u5834\u652f\u6255\u8005<select class="parkingPayerSelect"></select></label>'
+        + '<label>\u8ddd\u96e2 km<div class="number-stepper">'
+          + '<input class="distanceInput" type="number" step="0.1" min="0" value="0">'
+          + '<button class="step-button" type="button" data-step="1">+</button>'
+          + '<button class="step-button" type="button" data-step="-1">-</button>'
+        + '</div></label>'
+        + '<label>\u767b\u9332\u8ddd\u96e2<div class="distance-tools">'
+          + '<select class="distancePresetSelect"><option value="">\u767b\u9332\u8ddd\u96e2\u3092\u9078\u629e</option></select>'
+          + '<button class="saveDistancePreset" type="button">\u767b\u9332</button>'
+          + '<button class="deleteDistancePreset" type="button">\u524a\u9664</button>'
+        + '</div></label>'
+        + '<label>\u5f80\u5fa9<label class="switch"><input class="roundTripInput" type="checkbox"><span></span></label></label>'
+        + '<label>\u71c3\u8cbb km/L<div class="number-stepper">'
+          + '<input class="fuelEfficiencyInput" type="number" step="0.1" min="0.1" value="15">'
+          + '<button class="step-button" type="button" data-step="1">+</button>'
+          + '<button class="step-button" type="button" data-step="-1">-</button>'
+        + '</div></label>'
+        + '<label>\u30ac\u30bd\u30ea\u30f3 \u5186/L<div class="number-stepper">'
+          + '<input class="gasPriceInput" type="number" step="1" min="0" value="170">'
+          + '<button class="step-button" type="button" data-step="1">+</button>'
+          + '<button class="step-button" type="button" data-step="-1">-</button>'
+        + '</div></label>'
+        + '<label>\u9ad8\u901f\u4ee3 \u5186<div class="number-stepper">'
+          + '<input class="tollInput" type="number" step="1" min="0" value="0">'
+          + '<button class="step-button" type="button" data-step="1">+</button>'
+          + '<button class="step-button" type="button" data-step="-1">-</button>'
+        + '</div></label>'
+        + '<label>\u99d0\u8eca\u5834\u4ee3 \u5186<div class="number-stepper">'
+          + '<input class="parkingInput" type="number" step="1" min="0" value="0">'
+          + '<button class="step-button" type="button" data-step="1">+</button>'
+          + '<button class="step-button" type="button" data-step="-1">-</button>'
+        + '</div></label>'
+      + '</div>'
+      + '<div class="participants"></div>'
+    + '</details>'
+  + '</article>';
+}
+
+// カードにすべてのイベントを登録する（新規生成・既存カード再初期化の両方で使う）
+function _bindTripCard(card) {
   fillTripCardOptions(card);
   card.querySelector(".carSelect").addEventListener("change", () => {
     syncCarDefaults(card);
@@ -622,7 +641,22 @@ function addTripCar() {
     event.currentTarget.closest(".trip-card")?.remove();
     refreshTripCarControls();
   });
-  tripCars.appendChild(fragment);
+}
+
+function addTripCar() {
+  if (state.cars.length === 0) {
+    alert("\u8eca\u3092\u767b\u9332\u3057\u3066\u304b\u3089\u8ffd\u52a0\u3057\u3066\u304f\u3060\u3055\u3044");
+    return;
+  }
+  if (getTripCards().length >= state.cars.length) {
+    alert("\u767b\u9332\u6e08\u307f\u306e\u8eca\u306e\u53f0\u6570\u4ee5\u4e0a\u306f\u8ffd\u52a0\u3067\u304d\u307e\u305b\u3093");
+    return;
+  }
+  const wrapper = document.createElement("div");
+  wrapper.innerHTML = _makeTripCardHTML();
+  const card = wrapper.firstElementChild;
+  _bindTripCard(card);
+  tripCars.appendChild(card);
   refreshTripCarControls();
 }
 
@@ -907,7 +941,10 @@ async function boot() {
   state.cars   = (savedCars && savedCars.length)   ? savedCars   : [{ id:1, name:"車1" }];
   state.trips  = (savedTrips && savedTrips.length)  ? savedTrips  : [];
   state.distancePresets = (savedDistancePresets && savedDistancePresets.length) ? savedDistancePresets : [];
-  renderPeople(); renderCars(); renderHistory(); addTripCar();
+  renderPeople(); renderCars(); renderHistory();
+  // ブラウザ保存で残った静的カードをすべて削除してから新規生成
+  tripCars.innerHTML = "";
+  addTripCar();
 
   const pw = await ST.get('tc_password');
   // pw===null → 初回（ログイン画面でパスワード設定）
