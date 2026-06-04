@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0379)file:///C:/Users/zekky/OneDrive/%E3%83%89%E3%82%AD%E3%83%A5%E3%83%A1%E3%83%B3%E3%83%88/%E9%83%A8%E6%B4%BB%E4%BC%9A%E8%A8%88%E8%87%AA%E5%8B%95%E5%8C%96/%E4%BA%A4%E9%80%9A%E8%B2%BB%E8%A8%88%E7%AE%97%EF%BC%88%E7%87%83%E8%B2%BB%E3%80%81%E3%82%AC%E3%82%BD%E3%83%AA%E3%83%B3%E4%BB%A3%E5%9B%BA%E5%AE%9A%E3%81%AA%E3%81%97%EF%BC%89_files/%E4%BA%A4%E9%80%9A%E8%B2%BB%E8%A8%88%E7%AE%97.html -->
+<!-- saved from url=(0065)file:///C:/Users/zekky/Downloads/%E3%81%A6%E3%82%8B%E3%81%BE.html -->
 <html lang="ja"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -29,6 +29,35 @@ body { margin: 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Se
 #loginErr { margin: 0; color: var(--warn); font-size: 14px; display: none; }
 #loginErr.show { display: block; }
 
+/* パスワード表示ボタンデザイン */
+.password-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+.password-wrapper input {
+  padding-right: 60px;
+}
+.toggle-pw-btn {
+  position: absolute;
+  right: 8px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: nomal;
+  min-height: auto;
+  height: 30px;
+  padding: 0;
+  width: 50px;
+  border: none;
+  cursor: pointer;
+}
+.tiggle-pw-btn:hover {
+  color: ver(--accent);
+  background: transparent;
+}
+
 #app { display: none; }
 #app.active { display: block; }
 
@@ -51,8 +80,23 @@ h1 { font-size: 28px; } h2 { font-size: 18px; margin-bottom: 14px; }
 .grid-form { display: grid; grid-template-columns: 1.2fr 1fr 1fr auto; }
 input, select, button { min-height: 42px; border-radius: 6px; border: 1px solid var(--line); padding: 0 12px; font: inherit; }
 input, select { width: 100%; background: white; }
-button { cursor: pointer; border: 0; background: var(--accent); color: white; font-weight: 700; white-space: nowrap; }
-button:disabled { opacity: 0.45; cursor: not-allowed; }
+button { 
+  cursor: pointer; border: 0; background: var(--accent); color: white; 
+  font-weight: 700; white-space: nowrap; 
+  transition: all 0.2s ease;
+}
+/* マウスが乗ったとき色を濃くする */
+button:hover {
+  filter: brightness(0.9);
+}
+/* 押した時へこませる */
+button:active {
+  transform: scale(0.96);
+}
+/* 押せない状態のボタンは動かさない */
+button:disabled { opacity: 0.45; cursor: not-allowed;
+  opacity: none; transform: none;
+}
 .secondary { background: #e7edf2; color: var(--primary); }
 
 /* ── ×ボタン修正: inline-flex でセンタリング ── */
@@ -60,20 +104,40 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 36px; height: 36px; min-height: 36px;
+  width: 32px; height: 32px; min-height: 32px;
   padding: 0; flex-shrink: 0;
-  background: #f0d9dc; color: var(--warn);
+  background: transparent;
+  color: var(--muted);
   font-size: 18px; line-height: 1;
-  border: none; border-radius: 6px;
+  border: none; border-radius: 50%;
   cursor: pointer;
+  transition: all 0.2s ease;
 }
+
+/* ボタンにマウスが乗ったとき */
+.icon-buttor:hover, .delete-button:hover {
+  background: #ffe5e5;
+  color: var(--warn);
+}
+
+/* 押した時 */
+.icon-button:active, .delete-button:active {
+  transform: scale(0.85);
+}
+
+/* メンバー追加欄の小さな×ボタン用 */
+.chip .delete-button {
+  width: 22px; height: 22px; min-height: 22px;
+  font-size: 14px;
+}
+
 .chip .delete-button {
   width: 22px; height: 22px; min-height: 22px;
   border-radius: 50%; font-size: 14px;
 }
 
 .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
-.participants { display: grid; gap: 10px; margin-top: 12px; }
+.participants { display: grid; gap: 10px; margin-top: 15px; }
 .chip, .check {
   display: inline-flex; align-items: center; gap: 7px;
   min-height: 34px; padding: 6px 10px;
@@ -88,19 +152,71 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
   border: 1px solid var(--line); border-radius: 6px;
   background: #f6f8fa; color: var(--primary);
   cursor: pointer; font-weight: 700; list-style: none;
+  user-select: none;
+  transition: all 0.2 ease;
 }
 .collapsible summary::-webkit-details-marker { display: none; }
-.collapsible > summary::after { content: "開く"; color: var(--muted); font-size: 12px; }
-.collapsible[open] > summary::after { content: "閉じる"; }
-.collapsible[open] summary { margin-bottom: 12px; }
+/* マウスが乗った時 */
+.collapsible summary:hover {
+  background: #eef3f6;
+}
+/* 押した瞬間 */
+.collapsible summary:active {
+  background: #e2eaf0;
+}
+
+.collapsible > summary::after { 
+  content: "開く"; 
+  color: var(--muted); 
+  font-size: 12px; 
+  display: flex;
+  align-items: center; 
+  transition: transform 0.1s ease, color 0.1s ease; 
+}
+.collapsible[open] > summary::after { 
+  content: "閉じる"; 
+}
+.collapsible[open] summary { margin-bottom: 5px; }
+
+/* 開く閉じるボタンのへこみ */
+.collapsible summary:active::after {
+  transform: scale(0.95); 
+  color: var(--primary);  
+}
 
 /* ── 車カードsummary内の×ボタン ── */
-.car-summary { gap: 10px; }
-.car-summary::after { margin-left: auto; }
-.car-summary-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
-.car-summary .icon-button { flex-shrink: 0; order: 3; }
+/* ── 車カードsummary内のレイアウトと×ボタン ── */
+.car-summary { 
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.car-summary-name { 
+  min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; 
+}
+.car-summary::after { 
+  margin-left: auto; 
+  order: 2; 
+}
 
-.participant-tools { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+/* 車の×ボタン専用（ */
+.collapsible summary .removeCar.icon-button { 
+  flex-shrink: 0; 
+  order: 3; 
+  background: transparent;
+  color: var(--muted);
+  transition: all 0.2s ease;
+  margin-left: 20px;
+}
+.collapsible summary .removeCar.icon-button:hover {
+  background: #ffe5e5;
+  color: var(--warn);
+}
+.collapsible summary .removeCar.icon-button:active {
+  transform: scale(0.85);
+}
+
+.participant-tools { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-bottom: 15px;}
 .participant-tools button { min-height: 38px; background: #e7edf2; color: var(--primary); }
 .participant-list {
   display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -140,6 +256,19 @@ th { background: var(--primary); color: white; }
 .history-item { display: flex; justify-content: space-between; gap: 12px; width: 100%; background: white; color: var(--ink); border: 1px solid var(--line); }
 .muted { color: var(--muted); }
 .logout-btn { background: transparent; border: 1px solid rgba(255,255,255,0.4); color: white; font-weight: 400; font-size: 13px; min-height: 34px; padding: 0 12px; }
+.actions{ margin-top: 18px; }
+
+/* 割り勘メンバー未選択時は白っぽく */
+.check {
+  background: #ffffff;
+  border-color: var(--line);
+  transition: all 0.2s ease;
+}
+/* 割り勘メンバー選択時は色付き */
+.check:has(input:checked) {
+  background: #eef7f4;
+  border-color: #cfe2dc;
+}
 
 /* 印刷CSS はすべて別ウィンドウ側で管理するためここには不要 */
 @media (max-width: 760px) {
@@ -151,20 +280,22 @@ th { background: var(--primary); color: white; }
   th, td { padding: 8px 6px; }
 }
 </style>
-<script src="file:///C:/Users/zekky/Downloads/%E4%BA%A4%E9%80%9A%E8%B2%BB%E8%A8%88%E7%AE%97_files/jspdf.umd.min.js.%E3%83%80%E3%82%A6%E3%83%B3%E3%83%AD%E3%83%BC%E3%83%89"></script><script src="./index_files/jspdf.umd.min.js.ダウンロード"></script></head>
+<script src="./index_files/jspdf.umd.min.js.ダウンロード"></script></head>
 <body>
 
 <!-- ログイン画面 -->
 <div id="loginScreen" class="">
   <form id="loginForm" onsubmit="doLogin(event)">
     <h1>交通費計算</h1>
-    <input id="pwInput" type="password" placeholder="パスワード（なければ空欄）" autofocus="">
-    <p id="loginErr" class="show">パスワードが違います。</p>
+    <div class="password-wrapper">
+      <input id="pwInput" type="password" placeholder="パスワード（なければ空欄）" autofocus="">
+      <button type="button" id="togglePwBtn" class="toggle-pw-btn">表示</button>  <!-- パスワード表示・非表示ボタン --> 
+    </div>
+    <p id="loginErr" class="">パスワードが違います。</p>
     <button type="submit">ログイン</button>
     <p style="font-size:13px;color:var(--muted);margin:0;">初回アクセス時に入力した値がパスワードになります。空欄のままにするとパスワードなしで使えます。</p>
   </form>
 </div>
-
 <!-- アプリ本体 -->
 <div id="app" class="active">
 <header class="app-header">
@@ -179,12 +310,13 @@ th { background: var(--primary); color: white; }
   <!-- メンバー -->
   <section class="panel">
     <h2>メンバー</h2>
-    <details class="collapsible" open="">
+    <details class="collapsible">
       <summary>メンバー登録</summary>
       <form id="personForm" class="row-form">
         <input name="name" placeholder="名前を追加" required="">
         <button>追加</button>
       </form>
+
       <div id="peopleList" class="chips">
     <span class="chip">運転手<button class="delete-button" type="button" data-person-id="7" data-name="運転手">×</button></span>
   
@@ -204,6 +336,7 @@ th { background: var(--primary); color: white; }
         <input name="name" placeholder="車名" required="">
         <button>追加</button>
       </form>
+
       <div id="carsList" class="chips">
     <span class="chip">車1<button class="delete-button" type="button" data-car-id="1" data-name="車1">×</button></span>
   
@@ -211,6 +344,7 @@ th { background: var(--primary); color: white; }
   
     <span class="chip">参加者B<button class="delete-button" type="button" data-car-id="3" data-name="参加者B">×</button></span>
   </div>
+
     </details>
   </section>
 
@@ -222,7 +356,8 @@ th { background: var(--primary); color: white; }
     </div>
     <input id="tripTitle" class="title-input" placeholder="名称 例: 20○○-○○ 冬合宿">
     <input id="pdfFileName" class="title-input" placeholder="PDFファイル名 例: 20○○-○○ 冬合宿交通費精算">
-    <div id="tripCars" class="trip-cars"><article class="trip-card"><details class="collapsible car-collapsible" open=""><summary class="car-summary"><span class="car-summary-name">車1 カーの設定</span><button class="removeCar icon-button" title="この車を計算から外す" type="button">×</button></summary><div class="trip-card-head"><select class="carSelect"><option value="1">車1</option><option value="2">２</option><option value="3">参加者B</option></select></div><div class="trip-grid"><label>運転手<select class="driverSelect"><option value="7">運転手</option><option value="8">参加者A</option><option value="9">２</option></select></label><label>駐車場支払者<select class="parkingPayerSelect"><option value="7">運転手</option><option value="8">参加者A</option><option value="9">２</option></select></label><label>距離 km<div class="number-stepper"><input class="distanceInput" type="number" step="0.1" min="0" value="0"><button class="step-button" type="button" data-step="1">+</button><button class="step-button" type="button" data-step="-1">-</button></div></label><label>登録距離<div class="distance-tools"><select class="distancePresetSelect"><option value="">登録距離を選択</option></select><button class="saveDistancePreset" type="button">登録</button><button class="deleteDistancePreset" type="button">削除</button></div></label><label>往復<label class="switch"><input class="roundTripInput" type="checkbox"><span></span></label></label><label>燃費 km/L<div class="number-stepper"><input class="fuelEfficiencyInput" type="number" step="0.1" min="0.1" value="15"><button class="step-button" type="button" data-step="1">+</button><button class="step-button" type="button" data-step="-1">-</button></div></label><label>ガソリン 円/L<div class="number-stepper"><input class="gasPriceInput" type="number" step="1" min="0" value="170"><button class="step-button" type="button" data-step="1">+</button><button class="step-button" type="button" data-step="-1">-</button></div></label><label>高速代 円<div class="number-stepper"><input class="tollInput" type="number" step="1" min="0" value="0"><button class="step-button" type="button" data-step="1">+</button><button class="step-button" type="button" data-step="-1">-</button></div></label><label>駐車場代 円<div class="number-stepper"><input class="parkingInput" type="number" step="1" min="0" value="0"><button class="step-button" type="button" data-step="1">+</button><button class="step-button" type="button" data-step="-1">-</button></div></label></div><div class="participants">
+  
+    <div id="tripCars" class="trip-cars"><article class="trip-card"><details class="collapsible car-collapsible" open=""><summary class="car-summary"><span class="car-summary-name">車1 カーの設定</span><button class="removeCar icon-button" title="この車を計算から外す" type="button">×</button></summary><div class="trip-card-head"><select class="carSelect"><option value="1">車1</option><option value="2">２</option><option value="3">参加者B</option></select></div><div class="trip-grid"><label>運転手<select class="driverSelect"><option value="7">運転手</option><option value="8">参加者A</option><option value="9">２</option></select></label><label>駐車場支払者<select class="parkingPayerSelect"><option value="7">運転手</option><option value="8">参加者A</option><option value="9">２</option></select></label><label>片道距離（km）<div class="number-stepper"><input class="distanceInput" type="number" step="0.1" min="0" value="0" oninput="if(this.value&lt;0)this.value=0;" onkeydown="if(event.key===&#39;e&#39;||event.key===&#39;E&#39;)event.preventDefault();"><button class="step-button" type="button" data-step="1">+</button><button class="step-button" type="button" data-step="-1">-</button></div></label><label>登録距離<div class="distance-tools"><select class="distancePresetSelect"><option value="">登録距離を選択</option></select><button class="saveDistancePreset" type="button">登録</button><button class="deleteDistancePreset" type="button">削除</button></div></label><label>往復<label class="switch"><input class="roundTripInput" type="checkbox"><span></span></label></label><label>燃費（km/L）<div class="number-stepper"><input class="fuelEfficiencyInput" type="number" step="0.1" min="0.1" value="15" oninput="if(this.value&lt;0)this.value=0;" onblur="if(this.value===&#39;&#39;||this.value&lt;=0)this.value=15;" onkeydown="if(event.key===&#39;e&#39;||event.key===&#39;E&#39;)event.preventDefault();"><button class="step-button" type="button" data-step="1">+</button><button class="step-button" type="button" data-step="-1">-</button></div></label><label>ガソリン（円/L）<div class="number-stepper"><input class="gasPriceInput" type="number" step="1" min="0" value="170" oninput="if(this.value&lt;0)this.value=0;" onkeydown="if(event.key===&#39;e&#39;||event.key===&#39;E&#39;)event.preventDefault();"><button class="step-button" type="button" data-step="1">+</button><button class="step-button" type="button" data-step="-1">-</button></div></label><label>高速代（円）<div class="number-stepper"><input class="tollInput" type="number" step="1" min="0" value="0" oninput="if(this.value&lt;0)this.value=0;" onkeydown="if(event.key===&#39;e&#39;||event.key===&#39;E&#39;)event.preventDefault();"><button class="step-button" type="button" data-step="1">+</button><button class="step-button" type="button" data-step="-1">-</button></div></label><label>駐車場代（円）<div class="number-stepper"><input class="parkingInput" type="number" step="1" min="0" value="0" oninput="if(this.value&lt;0)this.value=0;" onkeydown="if(event.key===&#39;e&#39;||event.key===&#39;E&#39;)event.preventDefault();"><button class="step-button" type="button" data-step="1">+</button><button class="step-button" type="button" data-step="-1">-</button></div></label></div><div class="participants">
     <details class="collapsible participant-collapsible" open="">
       <summary>割り勘メンバー</summary>
       <div class="participant-tools">
@@ -230,9 +365,10 @@ th { background: var(--primary); color: white; }
         <button type="button" class="clearAllParticipants">全員解除</button>
       </div>
       <div class="participant-list">
-        <label class="check"><input type="checkbox" class="participantInput" value="7" checked=""><span>運転手</span></label><label class="check"><input type="checkbox" class="participantInput" value="8" checked=""><span>参加者A</span></label><label class="check"><input type="checkbox" class="participantInput" value="9"><span>２</span></label>
+        <label class="check"><input type="checkbox" class="participantInput" value="7" checked=""><span>運転手</span></label><label class="check"><input type="checkbox" class="participantInput" value="8" checked=""><span>参加者A</span></label><label class="check"><input type="checkbox" class="participantInput" value="9" checked=""><span>２</span></label>
       </div>
     </details></div></details></article></div>
+
     <div class="actions">
       <button id="calculateButton">計算</button>
       <button id="saveButton" class="secondary">履歴保存</button>
@@ -249,7 +385,7 @@ th { background: var(--primary); color: white; }
     <div id="resultTable">
     <table>
       <thead><tr><th>名前</th><th>支払済</th><th>負担額</th><th>精密な精算額</th><th>切上精算額</th></tr></thead>
-      <tbody><tr><td>運転手</td><td>0 円</td><td>0 円</td><td class="debit">0 円</td><td class="debit">0 円</td></tr><tr><td>参加者A</td><td>0 円</td><td>0 円</td><td class="debit">0 円</td><td class="debit">0 円</td></tr></tbody>
+      <tbody><tr><td>運転手</td><td>0 円</td><td>0 円</td><td class="debit">0 円</td><td class="debit">0 円</td></tr><tr><td>参加者A</td><td>0 円</td><td>0 円</td><td class="debit">0 円</td><td class="debit">0 円</td></tr><tr><td>２</td><td>0 円</td><td>0 円</td><td class="debit">0 円</td><td class="debit">0 円</td></tr></tbody>
     </table>
     <div class="car-breakdown">
       <div><strong>車1</strong> 0km / ガソリン 0 円 / 高速 0 円 / 駐車場 0 円 / 一人 0 円</div>
@@ -314,6 +450,7 @@ async function doLogin(e) {
 function showApp() {
   document.getElementById('loginScreen').classList.remove('active');
   document.getElementById('app').classList.add('active');
+  document.getElementById('loginErr').classList.remove('show'); //　ログイン成功時にエラー表示を消す
 }
 function doLogout() {
   document.getElementById('app').classList.remove('active');
@@ -588,37 +725,44 @@ function _makeTripCardHTML() {
       + '<div class="trip-grid">'
         + '<label>\u904b\u8ee2\u624b<select class="driverSelect"></select></label>'
         + '<label>\u99d0\u8eca\u5834\u652f\u6255\u8005<select class="parkingPayerSelect"></select></label>'
-        + '<label>\u8ddd\u96e2 km<div class="number-stepper">'
-          + '<input class="distanceInput" type="number" step="0.1" min="0" value="0">'
+        
+        + '<label>片道距離（km）<div class="number-stepper">'
+          + '<input class="distanceInput" type="number" step="0.1" min="0" value="0" oninput="if(this.value<0)this.value=0;" onkeydown="if(event.key===\'e\'||event.key===\'E\')event.preventDefault();">'
           + '<button class="step-button" type="button" data-step="1">+</button>'
           + '<button class="step-button" type="button" data-step="-1">-</button>'
         + '</div></label>'
+        
         + '<label>\u767b\u9332\u8ddd\u96e2<div class="distance-tools">'
           + '<select class="distancePresetSelect"><option value="">\u767b\u9332\u8ddd\u96e2\u3092\u9078\u629e</option></select>'
           + '<button class="saveDistancePreset" type="button">\u767b\u9332</button>'
           + '<button class="deleteDistancePreset" type="button">\u524a\u9664</button>'
         + '</div></label>'
+        
         + '<label>\u5f80\u5fa9<label class="switch"><input class="roundTripInput" type="checkbox"><span></span></label></label>'
-        + '<label>\u71c3\u8cbb km/L<div class="number-stepper">'
-          + '<input class="fuelEfficiencyInput" type="number" step="0.1" min="0.1" value="15">'
+        
+        + '<label>\u71c3\u8cbb（km/L）<div class="number-stepper">'
+        + '<input class="fuelEfficiencyInput" type="number" step="0.1" min="0.1" value="15" oninput="if(this.value<0)this.value=0;" onblur="if(this.value===\'\'||this.value<=0)this.value=15;" onkeydown="if(event.key===\'e\'||event.key===\'E\')event.preventDefault();">'          + '<button class="step-button" type="button" data-step="1">+</button>'
+          + '<button class="step-button" type="button" data-step="-1">-</button>'
+        + '</div></label>'
+        
+        + '<label>\u30ac\u30bd\u30ea\u30f3（\u5186/L）<div class="number-stepper">'
+          + '<input class="gasPriceInput" type="number" step="1" min="0" value="170" oninput="if(this.value<0)this.value=0;" onkeydown="if(event.key===\'e\'||event.key===\'E\')event.preventDefault();">'
           + '<button class="step-button" type="button" data-step="1">+</button>'
           + '<button class="step-button" type="button" data-step="-1">-</button>'
         + '</div></label>'
-        + '<label>\u30ac\u30bd\u30ea\u30f3 \u5186/L<div class="number-stepper">'
-          + '<input class="gasPriceInput" type="number" step="1" min="0" value="170">'
+        
+        + '<label>\u9ad8\u901f\u4ee3（\u5186）<div class="number-stepper">'
+          + '<input class="tollInput" type="number" step="1" min="0" value="0" oninput="if(this.value<0)this.value=0;" onkeydown="if(event.key===\'e\'||event.key===\'E\')event.preventDefault();">'
           + '<button class="step-button" type="button" data-step="1">+</button>'
           + '<button class="step-button" type="button" data-step="-1">-</button>'
         + '</div></label>'
-        + '<label>\u9ad8\u901f\u4ee3 \u5186<div class="number-stepper">'
-          + '<input class="tollInput" type="number" step="1" min="0" value="0">'
+        
+        + '<label>\u99d0\u8eca\u5834\u4ee3（\u5186）<div class="number-stepper">'
+          + '<input class="parkingInput" type="number" step="1" min="0" value="0" oninput="if(this.value<0)this.value=0;" onkeydown="if(event.key===\'e\'||event.key===\'E\')event.preventDefault();">'
           + '<button class="step-button" type="button" data-step="1">+</button>'
           + '<button class="step-button" type="button" data-step="-1">-</button>'
         + '</div></label>'
-        + '<label>\u99d0\u8eca\u5834\u4ee3 \u5186<div class="number-stepper">'
-          + '<input class="parkingInput" type="number" step="1" min="0" value="0">'
-          + '<button class="step-button" type="button" data-step="1">+</button>'
-          + '<button class="step-button" type="button" data-step="-1">-</button>'
-        + '</div></label>'
+        
       + '</div>'
       + '<div class="participants"></div>'
     + '</details>'
@@ -847,7 +991,7 @@ async function exportPDF() {
   y += 9;
   addTextImage(dateStr, MARGIN, y, { fontSize: 9, color: "#66788a" });
   y += 6;
-  addTextImage(`合計: ${yen2(result.total)}　　計算誤差 ${yen2(result.rounding_error)}　　マイナスは受け取る金額です`, MARGIN, y, { fontSize: 10 });
+  addTextImage(`合計: ${yen2(result.total)} 計算誤差 ${yen2(result.rounding_error)} マイナスは受け取る金額です`, MARGIN, y, { fontSize: 10 });
   y += 9;
 
   // 精算結果テーブルヘッダ背景
@@ -956,6 +1100,20 @@ async function boot() {
     showApp();
   }
 }
+
+// パスワード表示ボタンを押した時の表示・非表示の切り替え
+document.getElementById('togglePwBtn').addEventListener('click', function() {
+  const pwInput = document.getElementById('pwInput');
+  const toggleBtn = document.getElementById('togglePwBtn');
+
+  if (pwInput.type === 'password') {
+    pwInput.type = 'text';
+    toggleBtn.textContent = '非表示';
+  } else {
+    pwInput.type = 'password';
+    toggleBtn.textContent = '表示';
+  }
+});
 
 boot();
 </script>
