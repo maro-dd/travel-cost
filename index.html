@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0065)file:///C:/Users/zekky/Downloads/%E3%81%A6%E3%82%8B%E3%81%BE.html -->
+<!-- saved from url=(0379)file:///C:/Users/zekky/OneDrive/%E3%83%89%E3%82%AD%E3%83%A5%E3%83%A1%E3%83%B3%E3%83%88/%E9%83%A8%E6%B4%BB%E4%BC%9A%E8%A8%88%E8%87%AA%E5%8B%95%E5%8C%96/%E4%BA%A4%E9%80%9A%E8%B2%BB%E8%A8%88%E7%AE%97%EF%BC%88%E7%87%83%E8%B2%BB%E3%80%81%E3%82%AC%E3%82%BD%E3%83%AA%E3%83%B3%E4%BB%A3%E5%9B%BA%E5%AE%9A%E3%81%AA%E3%81%97%EF%BC%89_files/%E4%BA%A4%E9%80%9A%E8%B2%BB%E8%A8%88%E7%AE%97.html -->
 <html lang="ja"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -80,14 +80,19 @@ h1 { font-size: 28px; } h2 { font-size: 18px; margin-bottom: 14px; }
 .grid-form { display: grid; grid-template-columns: 1.2fr 1fr 1fr auto; }
 input, select, button { min-height: 42px; border-radius: 6px; border: 1px solid var(--line); padding: 0 12px; font: inherit; }
 input, select { width: 100%; background: white; }
+input[type="password"]::-ms-reveal {
+  display: none;
+}
 button { 
   cursor: pointer; border: 0; background: var(--accent); color: white; 
   font-weight: 700; white-space: nowrap; 
   transition: all 0.2s ease;
 }
 /* マウスが乗ったとき色を濃くする */
-button:hover {
-  filter: brightness(0.9);
+@media (hover: hover) {
+  button:hover {
+    filter: brightness(0.9);
+  }
 }
 /* 押した時へこませる */
 button:active {
@@ -115,9 +120,11 @@ button:disabled { opacity: 0.45; cursor: not-allowed;
 }
 
 /* ボタンにマウスが乗ったとき */
-.icon-buttor:hover, .delete-button:hover {
-  background: #ffe5e5;
-  color: var(--warn);
+@media (hover: hover) {
+  .icon-button:hover, .delete-button:hover {
+    background: #ffe5e5;
+    color: var(--warn);
+  }
 }
 
 /* 押した時 */
@@ -145,7 +152,8 @@ button:disabled { opacity: 0.45; cursor: not-allowed;
 }
 
 /* ── collapsible（メンバー・車・割り勘メンバー） ── */
-.collapsible { display: grid; gap: 12px; }
+.collapsible { display: block; }
+.colllapsible[open] { display: grid; gap: 12px; }
 .collapsible summary {
   display: flex; align-items: center; justify-content: space-between;
   min-height: 42px; padding: 0 12px;
@@ -157,8 +165,10 @@ button:disabled { opacity: 0.45; cursor: not-allowed;
 }
 .collapsible summary::-webkit-details-marker { display: none; }
 /* マウスが乗った時 */
-.collapsible summary:hover {
-  background: #eef3f6;
+@media (hover: hover) {
+  .collapsible summary:hover {
+    background: #eef3f6;
+  }
 }
 /* 押した瞬間 */
 .collapsible summary:active {
@@ -190,30 +200,47 @@ button:disabled { opacity: 0.45; cursor: not-allowed;
   display: flex;
   align-items: center;
   gap: 12px;
+  position: relative;
+  padding-left: 44px !important;
+  padding-right: 12px !important;
 }
 .car-summary-name { 
-  min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; 
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  position: relative;
 }
 .car-summary::after { 
   margin-left: auto; 
-  order: 2; 
+  margin-right: 0;
 }
 
-/* 車の×ボタン専用（ */
+/* ── 車の×ボタン専用（右端に強制固定） ── */
 .collapsible summary .removeCar.icon-button { 
-  flex-shrink: 0; 
-  order: 3; 
+  position: absolute; 
+  left: 3px;
+  top: 50%;
+  transform: translateY(-50%);
   background: transparent;
   color: var(--muted);
   transition: all 0.2s ease;
-  margin-left: 20px;
+  margin-left: 0;
+  flex-shrink: 0;
+  padding-bottom: 2px;
 }
-.collapsible summary .removeCar.icon-button:hover {
-  background: #ffe5e5;
-  color: var(--warn);
+
+@media (hover: hover) {
+  .collapsible summary .removeCar.icon-button:hover {
+    background: #ffe5e5;
+    color: var(--warn);
+  }
 }
+
+/* 押した時 */
 .collapsible summary .removeCar.icon-button:active {
-  transform: scale(0.85);
+  transform: translateY(-50%) scale(0.85);
 }
 
 .participant-tools { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-bottom: 15px;}
@@ -280,7 +307,7 @@ th { background: var(--primary); color: white; }
   th, td { padding: 8px 6px; }
 }
 </style>
-<script src="./index_files/jspdf.umd.min.js.ダウンロード"></script></head>
+</head>
 <body>
 
 <!-- ログイン画面 -->
@@ -310,7 +337,7 @@ th { background: var(--primary); color: white; }
   <!-- メンバー -->
   <section class="panel">
     <h2>メンバー</h2>
-    <details class="collapsible">
+    <details class="collapsible" open="">
       <summary>メンバー登録</summary>
       <form id="personForm" class="row-form">
         <input name="name" placeholder="名前を追加" required="">
@@ -357,15 +384,23 @@ th { background: var(--primary); color: white; }
     <input id="tripTitle" class="title-input" placeholder="名称 例: 20○○-○○ 冬合宿">
     <input id="pdfFileName" class="title-input" placeholder="PDFファイル名 例: 20○○-○○ 冬合宿交通費精算">
   
-    <div id="tripCars" class="trip-cars"><article class="trip-card"><details class="collapsible car-collapsible" open=""><summary class="car-summary"><span class="car-summary-name">車1 カーの設定</span><button class="removeCar icon-button" title="この車を計算から外す" type="button">×</button></summary><div class="trip-card-head"><select class="carSelect"><option value="1">車1</option><option value="2">２</option><option value="3">参加者B</option></select></div><div class="trip-grid"><label>運転手<select class="driverSelect"><option value="7">運転手</option><option value="8">参加者A</option><option value="9">２</option></select></label><label>駐車場支払者<select class="parkingPayerSelect"><option value="7">運転手</option><option value="8">参加者A</option><option value="9">２</option></select></label><label>片道距離（km）<div class="number-stepper"><input class="distanceInput" type="number" step="0.1" min="0" value="0" oninput="if(this.value&lt;0)this.value=0;" onkeydown="if(event.key===&#39;e&#39;||event.key===&#39;E&#39;)event.preventDefault();"><button class="step-button" type="button" data-step="1">+</button><button class="step-button" type="button" data-step="-1">-</button></div></label><label>登録距離<div class="distance-tools"><select class="distancePresetSelect"><option value="">登録距離を選択</option></select><button class="saveDistancePreset" type="button">登録</button><button class="deleteDistancePreset" type="button">削除</button></div></label><label>往復<label class="switch"><input class="roundTripInput" type="checkbox"><span></span></label></label><label>燃費（km/L）<div class="number-stepper"><input class="fuelEfficiencyInput" type="number" step="0.1" min="0.1" value="15" oninput="if(this.value&lt;0)this.value=0;" onblur="if(this.value===&#39;&#39;||this.value&lt;=0)this.value=15;" onkeydown="if(event.key===&#39;e&#39;||event.key===&#39;E&#39;)event.preventDefault();"><button class="step-button" type="button" data-step="1">+</button><button class="step-button" type="button" data-step="-1">-</button></div></label><label>ガソリン（円/L）<div class="number-stepper"><input class="gasPriceInput" type="number" step="1" min="0" value="170" oninput="if(this.value&lt;0)this.value=0;" onkeydown="if(event.key===&#39;e&#39;||event.key===&#39;E&#39;)event.preventDefault();"><button class="step-button" type="button" data-step="1">+</button><button class="step-button" type="button" data-step="-1">-</button></div></label><label>高速代（円）<div class="number-stepper"><input class="tollInput" type="number" step="1" min="0" value="0" oninput="if(this.value&lt;0)this.value=0;" onkeydown="if(event.key===&#39;e&#39;||event.key===&#39;E&#39;)event.preventDefault();"><button class="step-button" type="button" data-step="1">+</button><button class="step-button" type="button" data-step="-1">-</button></div></label><label>駐車場代（円）<div class="number-stepper"><input class="parkingInput" type="number" step="1" min="0" value="0" oninput="if(this.value&lt;0)this.value=0;" onkeydown="if(event.key===&#39;e&#39;||event.key===&#39;E&#39;)event.preventDefault();"><button class="step-button" type="button" data-step="1">+</button><button class="step-button" type="button" data-step="-1">-</button></div></label></div><div class="participants">
+    <div id="tripCars" class="trip-cars"><article class="trip-card"><details class="collapsible car-collapsible"><summary class="car-summary"><span class="car-summary-name">車1 カーの設定</span><button class="removeCar icon-button" title="この車を計算から外す" type="button">×</button></summary><div class="trip-card-head"><select class="carSelect"><option value="1">車1</option><option value="2">２</option><option value="3">参加者B</option></select></div><div class="trip-grid"><label>運転手<select class="driverSelect"><option value="7">運転手</option><option value="8">参加者A</option><option value="9">２</option></select></label><label>駐車場支払者<select class="parkingPayerSelect"><option value="7">運転手</option><option value="8">参加者A</option><option value="9">２</option></select></label><label>片道距離（km）<div class="number-stepper"><input class="distanceInput" type="number" step="0.1" min="0" value="0" oninput="if(this.value&lt;0)this.value=0;" onkeydown="if(event.key===&#39;e&#39;||event.key===&#39;E&#39;)event.preventDefault();"><button class="step-button" type="button" data-step="1">+</button><button class="step-button" type="button" data-step="-1">-</button></div></label><label>登録距離<div class="distance-tools"><select class="distancePresetSelect"><option value="">登録距離を選択</option></select><button class="saveDistancePreset" type="button">登録</button><button class="deleteDistancePreset" type="button">削除</button></div></label><label>往復<label class="switch"><input class="roundTripInput" type="checkbox"><span></span></label></label><label>燃費（km/L）<div class="number-stepper"><input class="fuelEfficiencyInput" type="number" step="0.1" min="0.1" value="15" oninput="if(this.value&lt;0)this.value=0;" onblur="if(this.value===&#39;&#39;||this.value&lt;=0)this.value=15;" onkeydown="if(event.key===&#39;e&#39;||event.key===&#39;E&#39;)event.preventDefault();"><button class="step-button" type="button" data-step="1">+</button><button class="step-button" type="button" data-step="-1">-</button></div></label><label>ガソリン（円/L）<div class="number-stepper"><input class="gasPriceInput" type="number" step="1" min="0" value="170" oninput="if(this.value&lt;0)this.value=0;" onkeydown="if(event.key===&#39;e&#39;||event.key===&#39;E&#39;)event.preventDefault();"><button class="step-button" type="button" data-step="1">+</button><button class="step-button" type="button" data-step="-1">-</button></div></label><label>高速代（円）<div class="number-stepper"><input class="tollInput" type="number" step="1" min="0" value="0" oninput="if(this.value&lt;0)this.value=0;" onkeydown="if(event.key===&#39;e&#39;||event.key===&#39;E&#39;)event.preventDefault();"><button class="step-button" type="button" data-step="1">+</button><button class="step-button" type="button" data-step="-1">-</button></div></label><label>駐車場代（円）<div class="number-stepper"><input class="parkingInput" type="number" step="1" min="0" value="0" oninput="if(this.value&lt;0)this.value=0;" onkeydown="if(event.key===&#39;e&#39;||event.key===&#39;E&#39;)event.preventDefault();"><button class="step-button" type="button" data-step="1">+</button><button class="step-button" type="button" data-step="-1">-</button></div></label></div><div class="participants">
     <details class="collapsible participant-collapsible" open="">
       <summary>割り勘メンバー</summary>
-      <div class="participant-tools">
-        <button type="button" class="selectAllParticipants">全員選択</button>
-        <button type="button" class="clearAllParticipants">全員解除</button>
-      </div>
-      <div class="participant-list">
-        <label class="check"><input type="checkbox" class="participantInput" value="7" checked=""><span>運転手</span></label><label class="check"><input type="checkbox" class="participantInput" value="8" checked=""><span>参加者A</span></label><label class="check"><input type="checkbox" class="participantInput" value="9" checked=""><span>２</span></label>
+      <div style="display: flex; flex-direction: column; margin-top: 12px">
+        
+        <div style="position: relative; width: 100%; margin-bottom: 14px;">
+          <input type="text" class="participantSearch" placeholder="メンバーを検索..." style="width: 100%; padding-right: 35px;">
+          <button type="button" class="clearSearchBtn icon-button" style="position: absolute; right: 2px; top: 50%; transform: translateY(-50%); display: none; margin: 0;">×</button>
+        </div>
+
+        <div class="participant-tools">
+          <button type="button" class="selectAllParticipants">全員選択</button>
+          <button type="button" class="clearAllParticipants">全員解除</button>
+        </div>
+        <div class="participant-list">
+          <label class="check"><input type="checkbox" class="participantInput" value="7" checked=""><span>運転手</span></label><label class="check"><input type="checkbox" class="participantInput" value="8"><span>参加者A</span></label><label class="check"><input type="checkbox" class="participantInput" value="9"><span>２</span></label>
+        </div>
       </div>
     </details></div></details></article></div>
 
@@ -385,7 +420,7 @@ th { background: var(--primary); color: white; }
     <div id="resultTable">
     <table>
       <thead><tr><th>名前</th><th>支払済</th><th>負担額</th><th>精密な精算額</th><th>切上精算額</th></tr></thead>
-      <tbody><tr><td>運転手</td><td>0 円</td><td>0 円</td><td class="debit">0 円</td><td class="debit">0 円</td></tr><tr><td>参加者A</td><td>0 円</td><td>0 円</td><td class="debit">0 円</td><td class="debit">0 円</td></tr><tr><td>２</td><td>0 円</td><td>0 円</td><td class="debit">0 円</td><td class="debit">0 円</td></tr></tbody>
+      <tbody><tr><td>運転手</td><td>0 円</td><td>0 円</td><td class="debit">0 円</td><td class="debit">0 円</td></tr><tr><td>参加者A</td><td>0 円</td><td>0 円</td><td class="debit">0 円</td><td class="debit">0 円</td></tr></tbody>
     </table>
     <div class="car-breakdown">
       <div><strong>車1</strong> 0km / ガソリン 0 円 / 高速 0 円 / 駐車場 0 円 / 一人 0 円</div>
@@ -566,75 +601,181 @@ function refreshDistancePresetControls() {
   getTripCards().forEach(renderDistancePresets);
 }
 
+// 車の設定の欄
 function fillTripCardOptions(card) {
   fillCarSelect(card);
   fillSelect(card.querySelector(".driverSelect"), state.people);
   fillSelect(card.querySelector(".parkingPayerSelect"), state.people);
+
+  syncCarDefaults(card);
+  const driverId = card.querySelector(".driverSelect").value;
+
   const participants = card.querySelector(".participants");
   const checkedIds = new Set([...participants.querySelectorAll(".participantInput:checked")].map(i => i.value));
   const shouldRestore = participants.querySelectorAll(".participantInput").length > 0;
+
   participants.innerHTML = `
     <details class="collapsible participant-collapsible" open>
       <summary>割り勘メンバー</summary>
-      <div class="participant-tools">
-        <button type="button" class="selectAllParticipants">全員選択</button>
-        <button type="button" class="clearAllParticipants">全員解除</button>
-      </div>
-      <div class="participant-list">
-        ${state.people.map(p => {
-          const checked = !shouldRestore || checkedIds.has(String(p.id)) ? "checked" : "";
-          return `<label class="check"><input type="checkbox" class="participantInput" value="${p.id}" ${checked}><span>${esc(p.name)}</span></label>`;
-        }).join("")}
+      <div style="display: flex; flex-direction: column; margin-top: 12px">
+        
+        <div style="position: relative; width: 100%; margin-bottom: 14px;">
+          <input type="text" class="participantSearch" placeholder="メンバーを検索..." style="width: 100%; padding-right: 35px;">
+          <button type="button" class="clearSearchBtn icon-button" style="position: absolute; right: 2px; top: 50%; transform: translateY(-50%); display: none; margin: 0;">×</button>
+        </div>
+
+        <div class="participant-tools">
+          <button type="button" class="selectAllParticipants">全員選択</button>
+          <button type="button" class="clearAllParticipants">全員解除</button>
+        </div>
+        <div class="participant-list">
+          ${state.people.map(p => {
+            const checked = (!shouldRestore && String(p.id) === driverId) || (shouldRestore && checkedIds.has(String(p.id))) ? "checked" : "";
+            return `<label class="check"><input type="checkbox" class="participantInput" value="${p.id}" ${checked}><span>${esc(p.name)}</span></label>`;
+          }).join("")}
+        </div>
       </div>
     </details>`;
-  participants.querySelector(".selectAllParticipants").addEventListener("click", () => setAllParticipants(card, true));
-  participants.querySelector(".clearAllParticipants").addEventListener("click", () => setAllParticipants(card, false));
+
+  initParticipantSearch(card);
   bindParticipantDrag(card);
   renderDistancePresets(card);
-  syncCarDefaults(card);
   refreshTripCarControls();
+}
+
+// 検索機能を登録する専用の関数
+function initParticipantSearch(card) {
+  const searchInput = card.querySelector(".participantSearch");
+  const list = card.querySelector(".participant-list");
+  const clearBtn = card.querySelector(".clearSearchBtn"); // ×ボタンを取得
+
+  // 読み仮名対応の比較用関数
+  const normalize = (str) => {
+    return str.replace(/[\u3041-\u3096]/g, m => String.fromCharCode(m.charCodeAt(0) + 0x60)).toLowerCase();
+  };
+
+  const performSearch = () => {
+    const keyword = normalize(searchInput.value);
+
+    // 文字が1文字でもあれば×ボタンを表示、空なら隠す
+    clearBtn.style.display = searchInput.value ? "inline-flex" : "none";
+
+    list.querySelectorAll(".check").forEach(label => {
+      const name = normalize(label.querySelector("span").textContent);
+      label.style.display = (keyword === "" || name.includes(keyword)) ? "" : "none";
+    });
+  };
+
+  // 入力した瞬間に検索＆×ボタンの表示チェックを走らせる
+  searchInput.addEventListener("input", performSearch);
+
+  // ×ボタンを押したときの処理
+  clearBtn.addEventListener("click", () => {
+    searchInput.value = ""; // 文字を空にする
+    performSearch();        // 空の状態で検索をやり直す（全員表示になる）
+    searchInput.focus();    // そのまま連続して打てるようにカーソルを戻す
+  });
+
+  // 全員選択・解除のイベント登録
+  card.querySelector(".selectAllParticipants").addEventListener("click", () => {
+    list.querySelectorAll(".check").forEach(l => { 
+      if(l.style.display !== "none") l.querySelector(".participantInput").checked = true; 
+    });
+  });
+  card.querySelector(".clearAllParticipants").addEventListener("click", () => {
+    list.querySelectorAll(".check").forEach(l => { 
+      if(l.style.display !== "none") l.querySelector(".participantInput").checked = false; 
+    });
+  });
 }
 
 function setAllParticipants(card, checked) {
   card.querySelectorAll(".participantInput").forEach(i => { i.checked = checked; });
 }
 
-// ── ドラッグ選択（元のコードそのまま） ──
+// ── ドラッグ選択（ダブルクリックバグ修正＆iPhoneスクロール対応版） ──
 function bindParticipantDrag(card) {
   const list = card.querySelector(".participant-list");
-  let pointerActive = false, dragStarted = false, dragChecked = true;
-  let startX = 0, startY = 0, startInput = null, suppressClick = false, activePointerId = null;
-  const dragThreshold = 10;
-  function setFromPoint(event) {
-    const el = document.elementFromPoint(event.clientX, event.clientY);
-    const check = el?.closest?.(".check");
+  let isDragging = false, dragStarted = false, dragChecked = true;
+  let startX = 0, startY = 0, startInput = null, suppressClick = false;
+
+  function setFromPoint(clientX, clientY) {
+    const el = document.elementFromPoint(clientX, clientY);
+    const check = el?.closest(".check");
     if (!check || !list.contains(check)) return;
-    check.querySelector(".participantInput").checked = dragChecked;
+    const input = check.querySelector(".participantInput");
+    if (input && input.checked !== dragChecked) {
+      input.checked = dragChecked;
+    }
   }
+
+  // 指やマウスを置いたとき
   list.addEventListener("pointerdown", event => {
     const check = event.target.closest(".check");
     if (!check) return;
-    pointerActive = true; dragStarted = false;
-    startX = event.clientX; startY = event.clientY;
+
+    // スマホの場合、チェックボックス付近（左から45px以内）以外を触ったらスクロール優先
+    if (event.pointerType === "touch") {
+      const rect = check.getBoundingClientRect();
+      const offsetX = event.clientX - rect.left;
+      if (offsetX > 45) return;
+    }
+
+    isDragging = true; 
+    dragStarted = false;
+    startX = event.clientX; 
+    startY = event.clientY;
     startInput = check.querySelector(".participantInput");
-    dragChecked = !startInput.checked; activePointerId = event.pointerId;
+    dragChecked = !startInput.checked; 
   });
+
+  // 指やマウスを動かしたとき
   list.addEventListener("pointermove", event => {
-    if (!pointerActive || event.pointerId !== activePointerId) return;
-    const moved = Math.hypot(event.clientX - startX, event.clientY - startY);
-    if (!dragStarted && moved < dragThreshold) return;
-    if (!dragStarted) { dragStarted = true; startInput.checked = dragChecked; list.setPointerCapture?.(event.pointerId); }
-    event.preventDefault(); setFromPoint(event);
+    if (!isDragging) return;
+
+    const deltaX = Math.abs(event.clientX - startX);
+    const deltaY = Math.abs(event.clientY - startY);
+    
+    // 少し動いたらドラッグ開始と判定
+    if (!dragStarted) {
+      if (Math.hypot(deltaX, deltaY) < 5) return;
+      dragStarted = true;
+      startInput.checked = dragChecked; 
+    }
+
+    if (event.pointerType !== "touch") {
+      event.preventDefault(); // PCのテキスト選択を防止
+    }
+    setFromPoint(event.clientX, event.clientY);
   });
-  list.addEventListener("pointerup", event => {
-    if (dragStarted) { event.preventDefault(); suppressClick = true; }
-    pointerActive = false; dragStarted = false; startInput = null; activePointerId = null;
+
+  // iPhoneのスクロールを止める
+  list.addEventListener("touchmove", event => {
+    if (isDragging) {
+      // 左側からドラッグを始めた時だけiPhoneの画面スクロールを強制ブロック
+      if (event.cancelable) event.preventDefault();
+    }
+  }, { passive: false });
+
+  // 指やマウスを離したとき
+  const endDrag = () => {
+    if (dragStarted) suppressClick = true; // ドラッグした後は、勝手なクリックを無効化
+    isDragging = false; 
+    dragStarted = false; 
+    startInput = null;
     if (suppressClick) setTimeout(() => { suppressClick = false; }, 80);
-  });
-  list.addEventListener("pointercancel", () => { pointerActive = false; dragStarted = false; startInput = null; activePointerId = null; });
+  };
+
+  list.addEventListener("pointerup", endDrag);
+  list.addEventListener("pointercancel", endDrag);
+  
+  // ブラウザの勝手なクリックを制御
   list.addEventListener("click", event => {
-    if (!suppressClick) return;
-    event.preventDefault(); event.stopPropagation(); suppressClick = false;
+    if (suppressClick) {
+      event.preventDefault(); 
+      event.stopPropagation(); 
+      suppressClick = false;
+    }
   }, true);
 }
 
@@ -775,6 +916,17 @@ function _bindTripCard(card) {
     syncCarDefaults(card);
     refreshTripCarControls();
   });
+
+  // 運転手が変更されたら，チェックを新しい運転手のみにする（ほかの選択はリセットしない）
+  card.querySelector(".driverSelect").addEventListener("change", (e) => {
+    const newDriverId = e.target.value;
+    card.querySelectorAll(".participantInput").forEach(input =>{
+      if (input.value === newDriverId) {
+        input.checked = true;
+      }
+    });
+  });
+
   bindNumberSteppers(card);
   bindDistancePresetControls(card);
   card.querySelector(".removeCar").addEventListener("click", event => {
@@ -1082,7 +1234,7 @@ async function boot() {
   const [savedPeople, savedCars, savedTrips, savedDistancePresets] = await Promise.all([
     ST.get('tc_people'), ST.get('tc_cars'), ST.get('tc_trips'), ST.get('tc_distance_presets')
   ]);
-  state.people = (savedPeople && savedPeople.length) ? savedPeople : [{ id:1, name:"運転手" }, { id:2, name:"参加者A" }, { id:3, name:"参加者B" }];
+  state.people = (savedPeople && savedPeople.length) ? savedPeople : [{ id:1, name:"運転手" }, { id:2, name:"よつろん" }, { id:3, name:"りゅうえんじ" }];
   state.cars   = (savedCars && savedCars.length)   ? savedCars   : [{ id:1, name:"車1" }];
   state.trips  = (savedTrips && savedTrips.length)  ? savedTrips  : [];
   state.distancePresets = (savedDistancePresets && savedDistancePresets.length) ? savedDistancePresets : [];
@@ -1115,10 +1267,18 @@ document.getElementById('togglePwBtn').addEventListener('click', function() {
   }
 });
 
+// ひらがな・カタカナを「全角カタカナ」に統一する関数
+function toKana(str) {
+  return str
+    // ひらがなを全角カタカナに変換
+    .replace(/[\u3041-\u3096]/g, m => String.fromCharCode(m.charCodeAt(0) + 0x60))
+    // 半角カタカナを全角カタカナに変換（念のため）
+    .replace(/[\uFF65-\uFF9F]/g, m => String.fromCharCode(m.charCodeAt(0) + 0xFEE0))
+    .normalize('NFKC');
+}
+
 boot();
 </script>
-
-
 
 <div id="UMS_TOOLTIP" style="position: absolute; cursor: pointer; z-index: 2147483647; background: transparent; top: -100000px; left: -100000px;"></div><div id="trend_notification_app" class="trend_notification_app_outer"><div id="trend_notification"><div id="trend_notification_con"></div></div></div><umsdataelement id="UMSDataElement" style="display: none;"></umsdataelement><div id="tmtoolbar_manual_rating_injected" style="display: none;">init</div><div id="UMSSendDataEventElement" style="display: none;">init</div>
 </body></html>
